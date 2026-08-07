@@ -15,6 +15,8 @@ Do not use generated answers, query fanout, broad/deep search, page extraction, 
 
 Files
 
+Run the commands below from the repository root.
+
 - `data/queries.csv` / `data/queries.jsonl`: 80 primary benchmark queries in
   ten categories
 - `data/category_summary.csv`: category definitions and metric focus
@@ -123,7 +125,7 @@ PARALLEL_API_KEY=... \
 PERPLEXITY_API_KEY=... \
 python runners/run_benchmark.py \
   --queries data/queries.csv \
-  --out ../runs/rep-1 \
+  --out runs/rep-1 \
   --include-reference-queries
 ```
 
@@ -147,16 +149,16 @@ Generate the operational charts after a run:
 
 ```bash
 python analysis/make_operational_charts.py \
-  --run-dir ../runs/rep-1 \
-  --out ../runs/rep-1/charts
+  --run-dir runs/rep-1 \
+  --out runs/rep-1/charts
 ```
 
 Generate the raw-study diagnostics:
 
 ```bash
 python analysis/make_study_charts.py \
-  --run-dir ../runs/rep-1 \
-  --out ../runs/rep-1/quality/study-charts
+  --run-dir runs/rep-1 \
+  --out runs/rep-1/quality/study-charts
 ```
 
 The quality charts from `analysis/plot_report.py` require completed blind judgments and

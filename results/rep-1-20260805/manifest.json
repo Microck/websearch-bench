@@ -13,7 +13,7 @@
     "parallel",
     "perplexity"
   ],
-  "query_catalog": "web_search_benchmark_kit/data/queries.csv",
+  "query_catalog": "data/queries.csv",
   "published_artifacts": [
     "request-summary.csv",
     "quality-summary.csv",

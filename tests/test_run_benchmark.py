@@ -1,16 +1,13 @@
 import os
 import unittest
 
-try:
-    from web_search_benchmark_kit.runners.run_benchmark import (
-        DEFAULT_PROVIDERS,
-        parse_args,
-        provider_request,
-        provider_results,
-        result_fields,
-    )
-except ImportError:
-    from runners.run_benchmark import DEFAULT_PROVIDERS, parse_args, provider_request, provider_results, result_fields
+from runners.run_benchmark import (
+    DEFAULT_PROVIDERS,
+    parse_args,
+    provider_request,
+    provider_results,
+    result_fields,
+)
 
 
 class ProviderContractTests(unittest.TestCase):

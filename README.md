@@ -7,18 +7,18 @@ answers or crawl result pages during the retrieval phase.
 
 The runner currently supports Exa, Kagi subscriber-session search, Context.dev,
 Octen, Parallel.ai, and Perplexity. The benchmark design and metric definitions
-are documented in [the package README](web_search_benchmark_kit/README.md).
+are documented in [the benchmark design](docs/benchmark-design.md).
 
 ## Repository layout
 
-- `web_search_benchmark_kit/runners/` contains retrieval and URL-health
+- `runners/` contains retrieval and URL-health
   entry points.
-- `web_search_benchmark_kit/analysis/` contains scoring, merging, and chart
+- `analysis/` contains scoring, merging, and chart
   generation modules.
-- `web_search_benchmark_kit/data/` contains the benchmark query catalog.
-- `web_search_benchmark_kit/templates/` contains judging and run schemas.
-- `web_search_benchmark_kit/docs/` contains the chart specification.
-- `web_search_benchmark_kit/tests/` contains contract tests.
+- `data/` contains the benchmark query catalog.
+- `templates/` contains judging and run schemas.
+- `docs/` contains the benchmark design and chart specification.
+- `tests/` contains contract tests.
 - `results/` contains a small, sanitized aggregate result release.
 - `runs/` is intentionally local-only. It can contain raw requests, raw
   responses, provider identifiers, and other experiment artifacts.
@@ -35,7 +35,7 @@ Use Python 3.11 or newer.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -r web_search_benchmark_kit/requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 Set the provider credentials for the services you want to test. The runner
@@ -55,8 +55,8 @@ from a value committed to this repository.
 Run retrieval into the ignored local `runs/` directory:
 
 ```bash
-python web_search_benchmark_kit/runners/run_benchmark.py \
-  --queries web_search_benchmark_kit/data/queries.csv \
+python runners/run_benchmark.py \
+  --queries data/queries.csv \
   --out runs/local-run \
   --include-reference-queries
 ```
@@ -64,7 +64,7 @@ python web_search_benchmark_kit/runners/run_benchmark.py \
 Generate operational charts from a local run:
 
 ```bash
-python web_search_benchmark_kit/analysis/make_operational_charts.py \
+python analysis/make_operational_charts.py \
   --run-dir runs/local-run \
   --out runs/local-run/charts
 ```
@@ -72,7 +72,7 @@ python web_search_benchmark_kit/analysis/make_operational_charts.py \
 Run the benchmark tests:
 
 ```bash
-python -m pytest web_search_benchmark_kit/tests/test_run_benchmark.py
+python -m pytest tests/test_run_benchmark.py
 ```
 
 ## Data and interpretation

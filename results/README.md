@@ -32,4 +32,4 @@ They should be reviewed separately before being shared with anyone else.
 The quality tables use the benchmark's provisional metadata heuristic and blind
 AI-card view. Neither measure is a human review of the linked landing pages.
 The charts should be read with the method limitations in
-`web_search_benchmark_kit/README.md`.
+`docs/benchmark-design.md`.
