@@ -10,15 +10,26 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from merge_linkinator_pass import (
-    CLASS_ORDER,
-    CLEAN_CLASSES,
-    DEAD_CLASS,
-    read_csv,
-    write_chart,
-    write_provider_summary,
-    write_summary,
-)
+try:
+    from merge_linkinator_pass import (
+        CLASS_ORDER,
+        CLEAN_CLASSES,
+        DEAD_CLASS,
+        read_csv,
+        write_chart,
+        write_provider_summary,
+        write_summary,
+    )
+except ImportError:  # pragma: no cover - supports package-style imports
+    from .merge_linkinator_pass import (
+        CLASS_ORDER,
+        CLEAN_CLASSES,
+        DEAD_CLASS,
+        read_csv,
+        write_chart,
+        write_provider_summary,
+        write_summary,
+    )
 
 
 def as_int(value: object) -> int:

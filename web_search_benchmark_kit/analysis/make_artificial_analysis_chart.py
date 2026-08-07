@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 from pathlib import Path
-from chart_style import BRAND_COLORS, DISPLAY_NAMES, HEATMAP_MUTED, HEATMAP_TEXT
+try:
+    from chart_style import BRAND_COLORS, DISPLAY_NAMES, HEATMAP_MUTED, HEATMAP_TEXT
+except ImportError:  # pragma: no cover - supports package-style imports
+    from .chart_style import BRAND_COLORS, DISPLAY_NAMES, HEATMAP_MUTED, HEATMAP_TEXT
 
 TARGET_QUALITY = 0.55
 TARGET_BAND_COLOR = "#e8f2eb"

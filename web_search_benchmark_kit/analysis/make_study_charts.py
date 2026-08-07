@@ -49,6 +49,7 @@ except ImportError:  # pragma: no cover - supports package-style imports
 
 
 COLORS = BRAND_COLORS
+KIT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def require_columns(frame: pd.DataFrame, name: str, columns: set[str]) -> None:
@@ -66,7 +67,7 @@ def load_inputs(run_dir: Path) -> dict[str, pd.DataFrame]:
     inputs = {
         "runs": pd.read_csv(run_dir / "runs.csv"),
         "results": pd.read_csv(run_dir / "retrieved_results.csv"),
-        "queries": pd.read_csv(run_dir.parent.parent / "web_search_benchmark_kit" / "queries.csv"),
+        "queries": pd.read_csv(KIT_ROOT / "data" / "queries.csv"),
         "resolution": pd.read_csv(run_dir / "url_resolution.csv"),
         "summary": pd.read_csv(run_dir / "run_summary.csv"),
         "billing": pd.read_csv(run_dir / "provider_billing_estimates.csv"),

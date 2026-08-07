@@ -15,14 +15,26 @@ Do not use generated answers, query fanout, broad/deep search, page extraction, 
 
 Files
 
-- queries.csv / queries.jsonl: 80 primary benchmark queries in ten categories
-- judgments_template.csv: blind pooled relevance-judgment schema
-- runs_template.csv: request-level latency, cost and failure schema
-- scored_results_template.csv: normalized ranked results joined to judgments
-- chart_spec.md: exact graph names, required data and intended message
-- plot_report.py: generates the core report charts from scored results and run logs
-- make_operational_charts.py: generates latency, result-depth, cost and distribution charts without relevance scores
-- make_study_charts.py: generates category, retrieval-agreement, URL-health, source-ecology and delivered-slot-cost diagnostics from raw study data
+- `data/queries.csv` / `data/queries.jsonl`: 80 primary benchmark queries in
+  ten categories
+- `data/category_summary.csv`: category definitions and metric focus
+- `templates/judgments_template.csv`: blind pooled relevance-judgment schema
+- `templates/runs_template.csv`: request-level latency, cost and failure schema
+- `templates/scored_results_template.csv`: normalized ranked results joined to
+  judgments
+- `docs/chart_spec.md`: exact graph names, required data and intended message
+- `runners/run_benchmark.py`: retrieval runner for the provider APIs
+- `runners/run_*`: URL-resolution, source-verification, and network-probe
+  runners
+- `analysis/plot_report.py`: core report charts from scored results and run logs
+- `analysis/make_operational_charts.py`: latency, result-depth, cost and
+  distribution charts without relevance scores
+- `analysis/make_study_charts.py`: category, retrieval-agreement, URL-health,
+  source-ecology and delivered-slot-cost diagnostics from raw study data
+- `analysis/`: scoring, merging, chart styling, and supporting analysis tools
+- `tools/browser_health.mjs`: browser-side health-check helper
+- `tests/test_run_benchmark.py`: provider request and result-normalization
+  contract tests
 
 Run design
 
@@ -99,7 +111,7 @@ Statistical reporting
 
 Raw runner
 
-`run_benchmark.py` executes the retrieval phase and writes request payloads,
+`runners/run_benchmark.py` executes the retrieval phase and writes request payloads,
 untouched response bodies, normalized ranked results, request logs, and
 provider-reported usage. It uses only the standard Python library.
 
@@ -109,8 +121,8 @@ CONTEXT_DEV_API_KEY=... \
 OCTEN_API_KEY=... \
 PARALLEL_API_KEY=... \
 PERPLEXITY_API_KEY=... \
-python run_benchmark.py \
-  --queries queries.csv \
+python runners/run_benchmark.py \
+  --queries data/queries.csv \
   --out ../runs/rep-1 \
   --include-reference-queries
 ```
@@ -134,7 +146,7 @@ working cost estimates for either provider.
 Generate the operational charts after a run:
 
 ```bash
-python make_operational_charts.py \
+python analysis/make_operational_charts.py \
   --run-dir ../runs/rep-1 \
   --out ../runs/rep-1/charts
 ```
@@ -142,10 +154,10 @@ python make_operational_charts.py \
 Generate the raw-study diagnostics:
 
 ```bash
-python make_study_charts.py \
+python analysis/make_study_charts.py \
   --run-dir ../runs/rep-1 \
   --out ../runs/rep-1/quality/study-charts
 ```
 
-The quality charts from `plot_report.py` require completed blind judgments and
+The quality charts from `analysis/plot_report.py` require completed blind judgments and
 a populated scored-results file.

@@ -16,4 +16,4 @@ dependencies = [
 test = ["pytest==9.1.1"]
 
 [tool.pytest.ini_options]
-testpaths = ["web_search_benchmark_kit"]
+testpaths = ["web_search_benchmark_kit/tests"]

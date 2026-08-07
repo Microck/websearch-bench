@@ -68,6 +68,7 @@ USAGE_FIELDS = [
 ]
 
 DEFAULT_PROVIDERS = ("exa", "context", "octen", "kagi_session", "parallel", "perplexity")
+DEFAULT_QUERY_FILE = Path(__file__).resolve().parents[1] / "data" / "queries.csv"
 TRACKING_QUERY_KEYS = {
     "fbclid",
     "gclid",
@@ -579,7 +580,7 @@ def run(args: argparse.Namespace) -> int:
 
 def parse_args(argv: Iterable[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--queries", default="queries.csv")
+    parser.add_argument("--queries", default=str(DEFAULT_QUERY_FILE))
     parser.add_argument("--out", required=True)
     parser.add_argument("--providers", default=",".join(DEFAULT_PROVIDERS), help="comma-separated provider names")
     parser.add_argument("--repetitions", type=int, default=1)

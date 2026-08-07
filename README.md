@@ -11,8 +11,14 @@ are documented in [the package README](web_search_benchmark_kit/README.md).
 
 ## Repository layout
 
-- `web_search_benchmark_kit/` contains the runner, analysis scripts, query set,
-  judging templates, and chart specification.
+- `web_search_benchmark_kit/runners/` contains retrieval and URL-health
+  entry points.
+- `web_search_benchmark_kit/analysis/` contains scoring, merging, and chart
+  generation modules.
+- `web_search_benchmark_kit/data/` contains the benchmark query catalog.
+- `web_search_benchmark_kit/templates/` contains judging and run schemas.
+- `web_search_benchmark_kit/docs/` contains the chart specification.
+- `web_search_benchmark_kit/tests/` contains contract tests.
 - `results/` contains a small, sanitized aggregate result release.
 - `runs/` is intentionally local-only. It can contain raw requests, raw
   responses, provider identifiers, and other experiment artifacts.
@@ -49,8 +55,8 @@ from a value committed to this repository.
 Run retrieval into the ignored local `runs/` directory:
 
 ```bash
-python web_search_benchmark_kit/run_benchmark.py \
-  --queries web_search_benchmark_kit/queries.csv \
+python web_search_benchmark_kit/runners/run_benchmark.py \
+  --queries web_search_benchmark_kit/data/queries.csv \
   --out runs/local-run \
   --include-reference-queries
 ```
@@ -58,7 +64,7 @@ python web_search_benchmark_kit/run_benchmark.py \
 Generate operational charts from a local run:
 
 ```bash
-python web_search_benchmark_kit/make_operational_charts.py \
+python web_search_benchmark_kit/analysis/make_operational_charts.py \
   --run-dir runs/local-run \
   --out runs/local-run/charts
 ```
@@ -66,7 +72,7 @@ python web_search_benchmark_kit/make_operational_charts.py \
 Run the benchmark tests:
 
 ```bash
-python -m pytest web_search_benchmark_kit/test_run_benchmark.py
+python -m pytest web_search_benchmark_kit/tests/test_run_benchmark.py
 ```
 
 ## Data and interpretation
