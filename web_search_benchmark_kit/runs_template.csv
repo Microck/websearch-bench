@@ -1,0 +1,1 @@
+query_id,query_variant,provider,repetition,started_at,latency_ms,http_status,error_type,cost_usd,request_id,raw_response_path

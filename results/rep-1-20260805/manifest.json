@@ -1,0 +1,33 @@
+{
+  "source_run": "combined retrieval run, repetition 1",
+  "captured_date": "2026-08-05",
+  "primary_query_count": 80,
+  "reference_query_count": 16,
+  "provider_count": 6,
+  "request_count": 576,
+  "providers": [
+    "context",
+    "exa",
+    "kagi_session",
+    "octen",
+    "parallel",
+    "perplexity"
+  ],
+  "query_catalog": "web_search_benchmark_kit/queries.csv",
+  "published_artifacts": [
+    "request-summary.csv",
+    "quality-summary.csv",
+    "ai-quality-summary.csv",
+    "charts/"
+  ],
+  "redactions": [
+    "absolute local paths",
+    "private host and machine identifiers",
+    "provider billing and account data",
+    "raw request payloads",
+    "raw provider responses",
+    "request identifiers",
+    "AI judging packets and reasoning",
+    "network-probe evidence"
+  ]
+}

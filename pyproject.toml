@@ -1,0 +1,19 @@
+[project]
+name = "web-search-benchmark-kit"
+version = "0.1.0"
+description = "A reproducible benchmark harness for ranked web-search APIs"
+readme = "web_search_benchmark_kit/README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Microck" }]
+dependencies = [
+  "matplotlib==3.10.9",
+  "numpy==2.4.4",
+  "pandas==3.0.3",
+]
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1"]
+
+[tool.pytest.ini_options]
+testpaths = ["web_search_benchmark_kit"]

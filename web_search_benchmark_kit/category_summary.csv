@@ -1,0 +1,11 @@
+category,what_it_tests,primary_metric,secondary_focus
+known_item,Find one exact page,MRR@10,Target URL rank
+primary_source,Prefer the original authority,nDCG@10,Official@1 / Official@3
+technical_exact,Handle exact errors and identifiers,nDCG@10,MRR@10 / Success@3
+semantic_long_tail,Bridge descriptions to canonical concepts,nDCG@10,Concept match
+niche_small_web,Find deep independent material,nDCG@10,Independent-source@5
+multi_constraint,Satisfy every mandatory condition,Constraint-Success@3,Constraint coverage
+exploratory_diversity,Cover distinct useful subtopics,alpha-nDCG@10,Subtopic recall@10
+multilingual_regional,Retrieve local-language local-authority pages,nDCG@10,Language@5 / Local-official@3
+robustness_noisy,"Resist typos, shorthand and verbosity",Robustness loss,Rank displacement
+freshness_rolling,Surface the newest official item,Latest-official rank,Success@3 / staleness gap

@@ -1,0 +1,33 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+.agent-runtime.json
+
+# Local experiment output and scratch work
+runs/
+scratch/
+*.log
+
+# Local version-control metadata
+.jj/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
