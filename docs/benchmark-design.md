@@ -34,7 +34,6 @@ Run the commands below from the repository root.
 - `analysis/make_study_charts.py`: category, retrieval-agreement, URL-health,
   source-ecology and delivered-slot-cost diagnostics from raw study data
 - `analysis/`: scoring, merging, chart styling, and supporting analysis tools
-- `tools/browser_health.mjs`: browser-side health-check helper
 - `tests/test_run_benchmark.py`: provider request and result-normalization
   contract tests
 
