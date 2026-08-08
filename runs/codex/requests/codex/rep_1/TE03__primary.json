@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "Rust E0502 cannot borrow as mutable because it is also borrowed as immutable"
+}

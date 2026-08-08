@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "postgres index for json not full text exact key value"
+}

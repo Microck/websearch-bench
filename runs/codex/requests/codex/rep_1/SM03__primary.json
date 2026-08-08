@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "PostgreSQL command that runs a query and reports the actual execution plan and timing"
+}

@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "write-up building a tiny debugger with ptrace in C"
+}

@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "whats the thing in http where browser asks server if cached file changed etag 304"
+}

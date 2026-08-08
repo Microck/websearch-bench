@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "Linux mechanism for receiving filesystem change notifications without polling"
+}

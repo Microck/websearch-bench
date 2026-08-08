@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "git undo last commit keep changes dont delete files"
+}

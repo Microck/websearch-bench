@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "ngnix 502 bad gateway upstream prematurely closed connection"
+}

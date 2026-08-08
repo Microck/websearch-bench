@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "HTTP feature for resuming a download from a specific byte offset"
+}

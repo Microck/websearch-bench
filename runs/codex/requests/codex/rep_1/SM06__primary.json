@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "safe file update technique that writes a temporary file and renames it over the original"
+}

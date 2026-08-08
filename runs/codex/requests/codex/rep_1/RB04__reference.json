@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "PostgreSQL index JSONB exact key value queries"
+}

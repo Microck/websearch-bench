@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "PostgreSQL SQLSTATE 40001 serialization_failure"
+}

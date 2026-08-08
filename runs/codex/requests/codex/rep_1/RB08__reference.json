@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "Rust cannot move out of borrowed content Option::take"
+}

@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "retry strategy that adds randomness to exponential delays to prevent synchronized clients"
+}

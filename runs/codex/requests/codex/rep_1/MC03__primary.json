@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "embedded columnar OLAP database SQL reads Parquet without a server"
+}

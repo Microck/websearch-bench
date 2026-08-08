@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "Python \"TypeError: unhashable type: 'dict'\""
+}

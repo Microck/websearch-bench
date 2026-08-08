@@ -1,0 +1,22 @@
+{
+  "created_at": "2026-08-08T17:53:11.474+00:00",
+  "query_file": "/home/ubuntu/workspace/web-search/data/queries.csv",
+  "query_count": 96,
+  "repetitions": 1,
+  "include_reference_queries": true,
+  "providers": [
+    "codex"
+  ],
+  "random_seed": 7,
+  "request_timeout_seconds": 120.0,
+  "provider_modes": {
+    "codex": "codex exec --json",
+    "claude_code": "claude --print --output-format stream-json --verbose"
+  },
+  "codex_api_key_from_env": true,
+  "codex_base_url": "http://127.0.0.1:8317/v1",
+  "claude_api_key_from_env": true,
+  "claude_base_url": "http://127.0.0.1:8317",
+  "redirect_resolution": "not_performed; canonical URL normalization only",
+  "run_type": "harness_only"
+}

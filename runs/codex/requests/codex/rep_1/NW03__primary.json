@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "blog post implementing an arena allocator in C with alignment and out-of-memory handling"
+}

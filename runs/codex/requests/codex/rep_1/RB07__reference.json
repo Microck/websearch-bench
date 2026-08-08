@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "HTTP conditional request ETag 304 Not Modified"
+}

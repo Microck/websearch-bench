@@ -1,0 +1,4 @@
+{
+  "provider": "codex",
+  "query": "kuberentes pod stuck terminatting finalizer remove safely"
+}
