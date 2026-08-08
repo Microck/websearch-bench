@@ -18,19 +18,21 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from chart_style import BRAND_COLORS
+    from chart_style import BRAND_COLORS, add_watermark
 except ImportError:  # pragma: no cover - supports package-style imports
-    from .chart_style import BRAND_COLORS
+    from .chart_style import BRAND_COLORS, add_watermark
 
 
-PROVIDER_ORDER = ["context", "exa", "kagi_session", "octen", "parallel", "perplexity"]
+PROVIDER_ORDER = ["brave", "context", "exa", "kagi_session", "octen", "parallel", "perplexity", "tavily"]
 DISPLAY_NAMES = {
+    "brave": "Brave",
     "context": "Context.dev",
     "exa": "Exa",
     "kagi_session": "Kagi",
     "octen": "Octen",
     "parallel": "Parallel.ai",
     "perplexity": "Perplexity",
+    "tavily": "Tavily",
 }
 COLORS = BRAND_COLORS
 def provider_order(values: pd.Series) -> list[str]:
@@ -91,7 +93,8 @@ def ordered_summary(summary: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_figure(fig: plt.Figure, path: Path) -> None:
-    fig.savefig(path, dpi=180, bbox_inches="tight")
+    add_watermark(fig)
+    fig.savefig(path, dpi=180, bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
 
 
@@ -187,6 +190,7 @@ def make_cost_chart(summary: pd.DataFrame, billing: pd.DataFrame, out_dir: Path)
             y = bar.get_height() + label_offset
         ax.text(bar.get_x() + bar.get_width() / 2, y, label, ha="center", fontsize=8)
     fig.subplots_adjust(bottom=0.20, left=0.14, right=0.98, top=0.91)
+    add_watermark(fig)
     fig.savefig(out_dir / "cost-comparison.png", dpi=dpi, facecolor="white")
     plt.close(fig)
 

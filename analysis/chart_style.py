@@ -10,26 +10,30 @@ import numpy as np
 from matplotlib.colors import Colormap, Normalize
 
 
-PROVIDER_ORDER = ["context", "exa", "kagi_session", "octen", "parallel", "perplexity"]
+PROVIDER_ORDER = ["brave", "context", "exa", "kagi_session", "octen", "parallel", "perplexity", "tavily"]
 DISPLAY_NAMES = {
+    "brave": "Brave",
     "context": "Context.dev",
     "exa": "Exa",
     "kagi_session": "Kagi",
     "octen": "Octen",
     "parallel": "Parallel.ai",
     "perplexity": "Perplexity",
+    "tavily": "Tavily",
 }
 
 # These are representative brand colors, not score colors. Use them for
 # provider data marks such as dots, bars, and lines. Labels stay neutral so
 # they do not compete with the chart's metric encoding.
 BRAND_COLORS = {
+    "brave": "#4F30AB",  # Deep purple
     "context": "#5E6AD2",  # Context site indigo approximation
     "exa": "#1840ED",  # Exa official brand blue
     "kagi_session": "#FFB319",  # Kagi official yellow
-    "octen": "#679987",  # Octen site accent
+    "octen": "#60FF70",  # Bright green
     "parallel": "#FB631B",  # Parallel site accent
     "perplexity": "#1FB8CD",  # Perplexity True Turquoise
+    "tavily": "#7EAE9A",  # Muted sage teal
 }
 
 CATEGORY_ORDER = [
@@ -57,11 +61,11 @@ CATEGORY_LABELS = {
     "freshness_rolling": "Freshness rolling",
 }
 
-HEATMAP_FIGSIZE = (14.0, 7.5)
+HEATMAP_FIGSIZE = (14.0, 6.5)
 HEATMAP_DPI = 180
 HEATMAP_TEXT = "#172027"
 HEATMAP_MUTED = "#5c6870"
-HEATMAP_FOOTER_Y = 0.025
+HEATMAP_FOOTER_Y = 0.02
 HEATMAP_TITLE_SIZE = 14
 HEATMAP_TICK_SIZE = 9
 HEATMAP_CELL_TEXT_SIZE = 8
@@ -69,15 +73,30 @@ HEATMAP_AXIS_LABEL_SIZE = 10
 HEATMAP_COLORBAR_TICK_SIZE = 9
 HEATMAP_FOOTER_SIZE = 8
 
-# A ten-column, six-row heatmap occupies 74% by 63% of the fixed canvas.
-# Deriving the axes size from these per-cell values prevents smaller matrices
-# from stretching their cells across the full category-heatmap width.
 HEATMAP_CELL_WIDTH = 0.074
-HEATMAP_CELL_HEIGHT = 0.105
+HEATMAP_CELL_HEIGHT = 0.090
 HEATMAP_GRID_CENTER_X = 0.48
-HEATMAP_GRID_BOTTOM = 0.22
+HEATMAP_GRID_BOTTOM = 0.20
 HEATMAP_COLORBAR_GAP = 0.018
 HEATMAP_COLORBAR_WIDTH = 0.014
+WATERMARK_TEXT = "Made by Microck | micr.dev"
+
+
+def add_watermark(fig: plt.Figure, *, x: float = 0.99) -> None:
+    """Add a restrained attribution mark to the lower-right figure margin."""
+
+    fig.text(
+        x,
+        0.035,
+        WATERMARK_TEXT,
+        ha="right",
+        va="bottom",
+        fontsize=7,
+        color=HEATMAP_MUTED,
+        alpha=0.78,
+        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.78, "pad": 1.5},
+        zorder=100,
+    )
 
 
 def ordered_values(values: Iterable[object], preferred: Sequence[str]) -> list[str]:
@@ -189,25 +208,25 @@ def finish_heatmap(
 ) -> None:
     """Finish every heatmap with the same canvas, margins, and footer."""
 
-    rows, columns = image.get_array().shape[:2]
-    grid_width = HEATMAP_CELL_WIDTH * columns
-    grid_height = HEATMAP_CELL_HEIGHT * rows
-    grid_left = HEATMAP_GRID_CENTER_X - grid_width / 2
-    ax.set_position([grid_left, HEATMAP_GRID_BOTTOM, grid_width, grid_height])
-    colorbar_axis = fig.add_axes([
-        grid_left + grid_width + HEATMAP_COLORBAR_GAP,
-        HEATMAP_GRID_BOTTOM,
-        HEATMAP_COLORBAR_WIDTH,
-        grid_height,
-    ])
-    colorbar = fig.colorbar(image, cax=colorbar_axis)
+    colorbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.02)
     colorbar.set_label(colorbar_label, fontsize=HEATMAP_AXIS_LABEL_SIZE)
     colorbar.ax.tick_params(labelsize=HEATMAP_COLORBAR_TICK_SIZE)
     ax.title.set_fontsize(HEATMAP_TITLE_SIZE)
     ax.title.set_fontweight("normal")
     if xlabel:
-        ax.set_xlabel(xlabel, labelpad=12, fontsize=HEATMAP_AXIS_LABEL_SIZE)
+        ax.set_xlabel(xlabel, labelpad=10, fontsize=HEATMAP_AXIS_LABEL_SIZE)
     if footer:
-        fig.text(0.10, HEATMAP_FOOTER_Y, footer, fontsize=HEATMAP_FOOTER_SIZE, color=HEATMAP_MUTED)
-    fig.savefig(output, dpi=HEATMAP_DPI, facecolor="white")
+        # Anchor to the axes left edge so bbox_inches="tight" doesn't pull
+        # the crop boundary far to the left of the y-axis labels.
+        ax.text(
+            0, -0.18 if not xlabel else -0.30,
+            footer,
+            transform=ax.transAxes,
+            fontsize=HEATMAP_FOOTER_SIZE,
+            color=HEATMAP_MUTED,
+            va="top",
+            clip_on=False,
+        )
+    add_watermark(fig)
+    fig.savefig(output, dpi=HEATMAP_DPI, facecolor="white", bbox_inches="tight", pad_inches=0.08)
     plt.close(fig)

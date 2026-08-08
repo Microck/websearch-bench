@@ -1,17 +1,19 @@
 {
   "source_run": "combined retrieval run, repetition 1",
-  "captured_date": "2026-08-05",
+  "captured_date": "2026-08-08",
   "primary_query_count": 80,
   "reference_query_count": 16,
-  "provider_count": 6,
-  "request_count": 576,
+  "provider_count": 8,
+  "request_count": 768,
   "providers": [
+    "brave",
     "context",
     "exa",
     "kagi_session",
     "octen",
     "parallel",
-    "perplexity"
+    "perplexity",
+    "tavily"
   ],
   "query_catalog": "data/queries.csv",
   "published_artifacts": [

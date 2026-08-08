@@ -30,10 +30,9 @@ import argparse
 import csv
 import itertools
 import math
-import os
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,6 +40,7 @@ import numpy as np
 try:
     from chart_style import (
         BRAND_COLORS,
+        add_watermark,
         category_order,
         finish_heatmap,
         provider_order,
@@ -50,6 +50,7 @@ try:
 except ImportError:  # pragma: no cover - supports package-style imports
     from .chart_style import (
         BRAND_COLORS,
+        add_watermark,
         category_order,
         finish_heatmap,
         provider_order,
@@ -58,14 +59,16 @@ except ImportError:  # pragma: no cover - supports package-style imports
     )
 
 TITLE_PREFIX = ""
-METHOD_LABEL = "Provisional metadata-heuristic"
+METHOD_LABEL = "Metadata-heuristic"
 DISPLAY_NAMES = {
+    "brave": "Brave",
     "context": "Context.dev",
     "exa": "Exa",
     "kagi_session": "Kagi",
     "octen": "Octen",
     "parallel": "Parallel.ai",
     "perplexity": "Perplexity",
+    "tavily": "Tavily",
 }
 
 
@@ -238,12 +241,13 @@ def save_overall_quality(out_dir: Path, summary: Dict[str, dict]) -> None:
         tick.set_color("#172027")
         tick.set_fontweight("normal")
     ax.set_xlim(0, 1)
-    ax.set_xlabel("Mean nDCG@10")
+    ax.set_xlabel(f"{METHOD_LABEL} nDCG@10")
     ax.set_title(method_title("nDCG@10 with 95% CI"))
     ax.invert_yaxis()
     ax.grid(axis="x", alpha=0.3)
     fig.text(0.01, 0.01, f"{METHOD_LABEL}; each dot is the mean nDCG@10 across 80 primary queries; whiskers show the paired-bootstrap 95% confidence interval.", fontsize=8, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
+    add_watermark(fig)
     fig.savefig(out_dir / "01_overall_quality_dot_whisker.png", dpi=180)
     plt.close(fig)
 
@@ -264,7 +268,7 @@ def save_category_heatmap(out_dir: Path, per_query: List[dict]) -> None:
     cmap = plt.get_cmap("YlGnBu")
     image = ax.imshow(matrix, aspect="auto", vmin=0, vmax=1, cmap=cmap)
     style_heatmap_axes(ax, providers, categories)
-    ax.set_title(method_title("nDCG@10 by category and provider"), pad=16)
+    ax.set_title(method_title("nDCG@10 by category and provider"), pad=8)
     annotate_heatmap(
         ax,
         matrix,
@@ -321,6 +325,7 @@ def save_win_tie_loss(out_dir: Path, per_query: List[dict], threshold: float = 0
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, frameon=False)
     fig.text(0.01, 0.01, f"{METHOD_LABEL}; blue means the first provider wins, red means it loses, and gray means tie. Hatching provides a second visual cue.", fontsize=8, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 0.91))
+    add_watermark(fig)
     fig.savefig(out_dir / "03_pairwise_win_tie_loss.png", dpi=180)
     plt.close(fig)
 
@@ -359,6 +364,7 @@ def save_latency_ecdf(out_dir: Path, run_rows: List[dict]) -> None:
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, frameon=False)
     fig.text(0.01, 0.01, "Successful requests only (HTTP 2xx, no error). Each step is one observed latency value.", fontsize=8, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 0.91))
+    add_watermark(fig)
     fig.savefig(out_dir / "05_latency_ecdf.png", dpi=180)
     plt.close(fig)
 
@@ -394,11 +400,12 @@ def save_relevance_by_rank(out_dir: Path, score_rows: List[dict]) -> None:
     ax.set_ylim(0, 3)
     ax.set_xlabel("Rank")
     ax.set_ylabel("Mean relevance grade")
-    ax.set_title(method_title("mean grade by result position"))
+    ax.set_title(method_title("relevance grade by result position"))
     ax.grid(alpha=0.3)
     ax.legend(loc="upper left", frameon=False)
     fig.text(0.01, 0.01, f"{METHOD_LABEL}; mean relevance grade at each rank position across all primary queries. Grade scale: 0 (off-topic) to 3 (highly relevant).", fontsize=8, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
+    add_watermark(fig)
     fig.savefig(out_dir / "06_mean_relevance_by_rank.png", dpi=180)
     plt.close(fig)
 
@@ -436,6 +443,7 @@ def save_overlap(out_dir: Path, score_rows: List[dict]) -> None:
     ax.set_title(method_title("relevant-result sharing and uniqueness"))
     fig.text(0.01, 0.01, f"{METHOD_LABEL}; top 15 nonzero provider combinations by count. Relevant results have grade >= 2, and each bar counts query-URL pairs found by exactly that combination, including singleton providers.", fontsize=8, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
+    add_watermark(fig)
     fig.savefig(out_dir / "07_relevant_result_overlap_upset_style.png", dpi=180)
     plt.close(fig)
 
@@ -487,6 +495,7 @@ def save_error_composition(out_dir: Path, run_rows: List[dict]) -> None:
     ax.legend()
     fig.text(0.01, 0.01, "Share of total recorded failures per provider. Providers with zero failures are not shown.", fontsize=8, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
+    add_watermark(fig)
     fig.savefig(out_dir / "08_error_composition.png", dpi=180)
     plt.close(fig)
 
@@ -497,7 +506,7 @@ def main() -> None:
     parser.add_argument("--runs", required=True)
     parser.add_argument("--out", required=True)
     parser.add_argument("--title-prefix", default="")
-    parser.add_argument("--method-label", default="Provisional metadata-heuristic")
+    parser.add_argument("--method-label", default="Metadata-heuristic")
     args = parser.parse_args()
     global METHOD_LABEL, TITLE_PREFIX
     TITLE_PREFIX = args.title_prefix

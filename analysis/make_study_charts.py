@@ -27,6 +27,7 @@ try:
         CATEGORY_ORDER,
         DISPLAY_NAMES,
         HEATMAP_FIGSIZE,
+        add_watermark,
         annotate_heatmap,
         finish_heatmap,
         provider_order as shared_provider_order,
@@ -40,6 +41,7 @@ except ImportError:  # pragma: no cover - supports package-style imports
         CATEGORY_ORDER,
         DISPLAY_NAMES,
         HEATMAP_FIGSIZE,
+        add_watermark,
         annotate_heatmap,
         finish_heatmap,
         provider_order as shared_provider_order,
@@ -82,7 +84,8 @@ def load_inputs(run_dir: Path) -> dict[str, pd.DataFrame]:
 
 
 def save_figure(fig: plt.Figure, path: Path) -> None:
-    fig.savefig(path, dpi=180, bbox_inches="tight")
+    add_watermark(fig)
+    fig.savefig(path, dpi=180, bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
 
 
@@ -119,7 +122,7 @@ def make_latency_heatmap(data: dict[str, pd.DataFrame], out_dir: Path) -> None:
     cmap = plt.get_cmap("YlGnBu")
     image = ax.imshow(values, cmap=cmap, aspect="auto", vmin=vmin, vmax=vmax)
     style_heatmap_axes(ax, providers, CATEGORY_ORDER)
-    ax.set_title("Primary-query latency by category", pad=16)
+    ax.set_title("Primary-query latency by category", pad=8)
     annotate_heatmap(
         ax,
         values,
@@ -166,7 +169,7 @@ def make_completeness_heatmap(data: dict[str, pd.DataFrame], out_dir: Path) -> N
     cmap = plt.get_cmap("YlOrRd")
     image = ax.imshow(values, cmap=cmap, aspect="auto", vmin=0, vmax=100)
     style_heatmap_axes(ax, providers, CATEGORY_ORDER)
-    ax.set_title("Short-list rate by primary-query category", pad=16)
+    ax.set_title("Short-list rate by primary-query category", pad=8)
     annotate_heatmap(
         ax,
         values,
@@ -225,7 +228,7 @@ def make_agreement_matrix(data: dict[str, pd.DataFrame], out_dir: Path) -> None:
     cmap.set_bad("#d9dfdd")
     image = ax.imshow(display_values, cmap=cmap, aspect="auto", vmin=0, vmax=vmax)
     style_provider_matrix_axes(ax, providers)
-    ax.set_title("Raw result-set agreement", pad=16)
+    ax.set_title("Raw result-set agreement", pad=8)
     annotate_heatmap(
         ax,
         display_values,
