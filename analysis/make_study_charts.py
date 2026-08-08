@@ -26,8 +26,8 @@ try:
         CATEGORY_LABELS,
         CATEGORY_ORDER,
         DISPLAY_NAMES,
+        FOOTER_SIZE,
         HEATMAP_FIGSIZE,
-        add_watermark,
         annotate_heatmap,
         finish_heatmap,
         provider_order as shared_provider_order,
@@ -40,8 +40,8 @@ except ImportError:  # pragma: no cover - supports package-style imports
         CATEGORY_LABELS,
         CATEGORY_ORDER,
         DISPLAY_NAMES,
+        FOOTER_SIZE,
         HEATMAP_FIGSIZE,
-        add_watermark,
         annotate_heatmap,
         finish_heatmap,
         provider_order as shared_provider_order,
@@ -84,7 +84,6 @@ def load_inputs(run_dir: Path) -> dict[str, pd.DataFrame]:
 
 
 def save_figure(fig: plt.Figure, path: Path) -> None:
-    add_watermark(fig)
     fig.savefig(path, dpi=180, bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
 
@@ -321,7 +320,7 @@ def make_resolution_health(data: dict[str, pd.DataFrame], out_dir: Path) -> None
     axes[1].set_title("Resolver-observed success by rank")
     axes[1].grid(alpha=0.25)
     axes[1].legend(fontsize=8)
-    fig.text(0.01, 0.01, "Resolver snapshot: flagged does not prove unavailable. 403/429 can be access blocks; unresolved URLs were not tested.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, "Resolver snapshot: flagged does not prove unavailable. 403/429 can be access blocks; unresolved URLs were not tested.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.07, 1, 1))
     save_figure(fig, out_dir / "url-resolution-health.png")
 
@@ -493,7 +492,7 @@ def make_source_ecology(data: dict[str, pd.DataFrame], out_dir: Path) -> None:
     ax.set_title("Source ecology of the result lists")
     ax.grid(axis="x", alpha=0.25)
     ax.legend(fontsize=8, ncol=3, loc="lower left", bbox_to_anchor=(0, -0.34))
-    fig.text(0.01, 0.01, "Host share is descriptive, not a relevance or authority score. Other hosts includes every domain outside the eight most common.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, "Host share is descriptive, not a relevance or authority score. Other hosts includes every domain outside the eight most common.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.08, 1, 1))
     save_figure(fig, out_dir / "source-ecology.png")
 

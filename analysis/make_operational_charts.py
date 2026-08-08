@@ -18,9 +18,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from chart_style import BRAND_COLORS, add_watermark
+    from chart_style import BRAND_COLORS, FOOTER_SIZE
 except ImportError:  # pragma: no cover - supports package-style imports
-    from .chart_style import BRAND_COLORS, add_watermark
+    from .chart_style import BRAND_COLORS, FOOTER_SIZE
 
 
 PROVIDER_ORDER = ["brave", "context", "exa", "kagi_session", "octen", "parallel", "perplexity", "tavily"]
@@ -93,7 +93,6 @@ def ordered_summary(summary: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_figure(fig: plt.Figure, path: Path) -> None:
-    add_watermark(fig)
     fig.savefig(path, dpi=180, bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
 
@@ -113,7 +112,7 @@ def make_latency_chart(summary: pd.DataFrame, out_dir: Path) -> None:
     for index, row in data.iterrows():
         ax.text(index - width / 2, row["p50_latency_ms"] + 55, f"{row['p50_latency_ms']:.0f}", ha="center", fontsize=8)
         ax.text(index + width / 2, row["p95_latency_ms"] + 55, f"{row['p95_latency_ms']:.0f}", ha="center", fontsize=8)
-    fig.text(0.01, 0.01, "All 96 requests per provider: 80 primary and 16 reference queries. Successful HTTP 2xx requests only.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, "All 96 requests per provider: 80 primary and 16 reference queries. Successful HTTP 2xx requests only.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
     save_figure(fig, out_dir / "latency-summary.png")
 
@@ -132,7 +131,7 @@ def make_depth_chart(summary: pd.DataFrame, out_dir: Path) -> None:
     depth_ax.grid(axis="y", alpha=0.25)
     for index, value in enumerate(data["mean_results_per_request"]):
         depth_ax.text(index, value + 0.15, f"{value:.2f}", ha="center", fontsize=8)
-    depth_fig.text(0.01, 0.01, "All 96 requests per provider: 80 primary and 16 reference queries.", fontsize=8, color="#5c6870")
+    depth_fig.text(0.01, 0.01, "All 96 requests per provider: 80 primary and 16 reference queries.", fontsize=FOOTER_SIZE, color="#5c6870")
     depth_fig.tight_layout(rect=(0, 0.06, 1, 1))
     save_figure(depth_fig, out_dir / "result-depth.png")
 
@@ -145,7 +144,7 @@ def make_depth_chart(summary: pd.DataFrame, out_dir: Path) -> None:
     short_list_ax.grid(axis="y", alpha=0.25)
     for index, value in enumerate(data["short_list_pct"]):
         short_list_ax.text(index, value + 2, f"{value:.1f}%", ha="center", fontsize=8)
-    short_list_fig.text(0.01, 0.01, "96 requests per provider. Fewer than 10 results counts as a short list.", fontsize=8, color="#5c6870")
+    short_list_fig.text(0.01, 0.01, "96 requests per provider. Fewer than 10 results counts as a short list.", fontsize=FOOTER_SIZE, color="#5c6870")
     short_list_fig.tight_layout(rect=(0, 0.06, 1, 1))
     save_figure(short_list_fig, out_dir / "short-list-rate.png")
 
@@ -190,7 +189,6 @@ def make_cost_chart(summary: pd.DataFrame, billing: pd.DataFrame, out_dir: Path)
             y = bar.get_height() + label_offset
         ax.text(bar.get_x() + bar.get_width() / 2, y, label, ha="center", fontsize=8)
     fig.subplots_adjust(bottom=0.20, left=0.14, right=0.98, top=0.91)
-    add_watermark(fig)
     fig.savefig(out_dir / "cost-comparison.png", dpi=dpi, facecolor="white")
     plt.close(fig)
 
@@ -217,7 +215,7 @@ def make_latency_ecdf(runs: pd.DataFrame, out_dir: Path) -> None:
     ax.set_title("Latency distribution of successful requests")
     ax.grid(alpha=0.25)
     ax.legend()
-    fig.text(0.01, 0.01, "Successful requests only (HTTP 2xx, no error) across the 80 primary and 16 reference queries. Each step is one observed latency.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, "Successful requests only (HTTP 2xx, no error) across the 80 primary and 16 reference queries. Each step is one observed latency.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
     save_figure(fig, out_dir / "latency-ecdf.png")
 

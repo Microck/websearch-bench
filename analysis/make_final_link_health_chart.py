@@ -15,9 +15,9 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 try:
-    from chart_style import DISPLAY_NAMES, provider_order
+    from chart_style import DISPLAY_NAMES, FOOTER_SIZE, provider_order
 except ImportError:  # pragma: no cover - supports package-style imports
-    from .chart_style import DISPLAY_NAMES, provider_order
+    from .chart_style import DISPLAY_NAMES, FOOTER_SIZE, provider_order
 
 
 ORDER = [
@@ -85,7 +85,7 @@ def render_historical_targeted_chart(input_path: Path, output_path: Path, *, tit
     axis.set_axisbelow(True)
     handles, legend_labels = axis.get_legend_handles_labels()
     fig.legend(handles, legend_labels, loc="upper center", bbox_to_anchor=(0.5, 0.90), ncol=3, frameon=False)
-    fig.text(0.5, 0.02, subtitle, ha="center", fontsize=8, color="#5c6870")
+    fig.text(0.5, 0.02, subtitle, ha="center", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.subplots_adjust(top=0.70, bottom=0.22, left=0.08, right=0.98)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180, bbox_inches="tight", facecolor="white")
@@ -177,7 +177,7 @@ def render(input_path: Path, output_path: Path) -> None:
         0.01,
         "Provider-local normalized URL counts. Clean share is GET OK or GET redirect. Source-level confirmations are not shown; warning categories are unconfirmed, not dead. Pass 5 rechecked 138 residual rows and promoted none.",
         color="#5c6870",
-        fontsize=8,
+        fontsize=FOOTER_SIZE,
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=160, bbox_inches="tight")

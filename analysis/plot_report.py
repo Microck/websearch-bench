@@ -40,9 +40,9 @@ import numpy as np
 try:
     from chart_style import (
         BRAND_COLORS,
-        add_watermark,
         category_order,
         finish_heatmap,
+        FOOTER_SIZE,
         provider_order,
         style_heatmap_axes,
         annotate_heatmap,
@@ -50,9 +50,9 @@ try:
 except ImportError:  # pragma: no cover - supports package-style imports
     from .chart_style import (
         BRAND_COLORS,
-        add_watermark,
         category_order,
         finish_heatmap,
+        FOOTER_SIZE,
         provider_order,
         style_heatmap_axes,
         annotate_heatmap,
@@ -245,9 +245,8 @@ def save_overall_quality(out_dir: Path, summary: Dict[str, dict]) -> None:
     ax.set_title(method_title("nDCG@10 with 95% CI"))
     ax.invert_yaxis()
     ax.grid(axis="x", alpha=0.3)
-    fig.text(0.01, 0.01, f"{METHOD_LABEL}; each dot is the mean nDCG@10 across 80 primary queries; whiskers show the paired-bootstrap 95% confidence interval.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, f"{METHOD_LABEL}; each dot is the mean nDCG@10 across 80 primary queries; whiskers show the paired-bootstrap 95% confidence interval.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
-    add_watermark(fig)
     fig.savefig(out_dir / "01_overall_quality_dot_whisker.png", dpi=180)
     plt.close(fig)
 
@@ -323,9 +322,8 @@ def save_win_tie_loss(out_dir: Path, per_query: List[dict], threshold: float = 0
     ax.set_title(method_title(f"paired win-tie-loss (tie threshold +/-{threshold:.2f} nDCG@10)"))
     ax.grid(axis="x", alpha=0.25)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, frameon=False)
-    fig.text(0.01, 0.01, f"{METHOD_LABEL}; blue means the first provider wins, red means it loses, and gray means tie. Hatching provides a second visual cue.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, f"{METHOD_LABEL}; blue means the first provider wins, red means it loses, and gray means tie. Hatching provides a second visual cue.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 0.91))
-    add_watermark(fig)
     fig.savefig(out_dir / "03_pairwise_win_tie_loss.png", dpi=180)
     plt.close(fig)
 
@@ -362,9 +360,8 @@ def save_latency_ecdf(out_dir: Path, run_rows: List[dict]) -> None:
     ax.set_title(chart_title("Latency distribution of successful requests"))
     ax.grid(alpha=0.3)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, frameon=False)
-    fig.text(0.01, 0.01, "Successful requests only (HTTP 2xx, no error). Each step is one observed latency value.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, "Successful requests only (HTTP 2xx, no error). Each step is one observed latency value.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 0.91))
-    add_watermark(fig)
     fig.savefig(out_dir / "05_latency_ecdf.png", dpi=180)
     plt.close(fig)
 
@@ -403,9 +400,8 @@ def save_relevance_by_rank(out_dir: Path, score_rows: List[dict]) -> None:
     ax.set_title(method_title("relevance grade by result position"))
     ax.grid(alpha=0.3)
     ax.legend(loc="upper left", frameon=False)
-    fig.text(0.01, 0.01, f"{METHOD_LABEL}; mean relevance grade at each rank position across all primary queries. Grade scale: 0 (off-topic) to 3 (highly relevant).", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, f"{METHOD_LABEL}; mean relevance grade at each rank position across all primary queries. Grade scale: 0 (off-topic) to 3 (highly relevant).", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
-    add_watermark(fig)
     fig.savefig(out_dir / "06_mean_relevance_by_rank.png", dpi=180)
     plt.close(fig)
 
@@ -441,9 +437,8 @@ def save_overlap(out_dir: Path, score_rows: List[dict]) -> None:
     ax.set_xlabel("Relevant query-URL pairs")
     ax.grid(axis="x", alpha=0.25)
     ax.set_title(method_title("relevant-result sharing and uniqueness"))
-    fig.text(0.01, 0.01, f"{METHOD_LABEL}; top 15 nonzero provider combinations by count. Relevant results have grade >= 2, and each bar counts query-URL pairs found by exactly that combination, including singleton providers.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, f"{METHOD_LABEL}; top 15 nonzero provider combinations by count. Relevant results have grade >= 2, and each bar counts query-URL pairs found by exactly that combination, including singleton providers.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
-    add_watermark(fig)
     fig.savefig(out_dir / "07_relevant_result_overlap_upset_style.png", dpi=180)
     plt.close(fig)
 
@@ -493,9 +488,8 @@ def save_error_composition(out_dir: Path, run_rows: List[dict]) -> None:
     ax.set_title(chart_title("Error breakdown by failure type"))
     ax.grid(axis="y", alpha=0.25)
     ax.legend()
-    fig.text(0.01, 0.01, "Share of total recorded failures per provider. Providers with zero failures are not shown.", fontsize=8, color="#5c6870")
+    fig.text(0.01, 0.01, "Share of total recorded failures per provider. Providers with zero failures are not shown.", fontsize=FOOTER_SIZE, color="#5c6870")
     fig.tight_layout(rect=(0, 0.05, 1, 1))
-    add_watermark(fig)
     fig.savefig(out_dir / "08_error_composition.png", dpi=180)
     plt.close(fig)
 

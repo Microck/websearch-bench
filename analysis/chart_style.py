@@ -71,7 +71,7 @@ HEATMAP_TICK_SIZE = 9
 HEATMAP_CELL_TEXT_SIZE = 8
 HEATMAP_AXIS_LABEL_SIZE = 10
 HEATMAP_COLORBAR_TICK_SIZE = 9
-HEATMAP_FOOTER_SIZE = 8
+FOOTER_SIZE = 6
 
 HEATMAP_CELL_WIDTH = 0.074
 HEATMAP_CELL_HEIGHT = 0.090
@@ -79,24 +79,6 @@ HEATMAP_GRID_CENTER_X = 0.48
 HEATMAP_GRID_BOTTOM = 0.20
 HEATMAP_COLORBAR_GAP = 0.018
 HEATMAP_COLORBAR_WIDTH = 0.014
-WATERMARK_TEXT = "Made by Microck | micr.dev"
-
-
-def add_watermark(fig: plt.Figure, *, x: float = 0.99) -> None:
-    """Add a restrained attribution mark to the lower-right figure margin."""
-
-    fig.text(
-        x,
-        0.035,
-        WATERMARK_TEXT,
-        ha="right",
-        va="bottom",
-        fontsize=7,
-        color=HEATMAP_MUTED,
-        alpha=0.78,
-        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.78, "pad": 1.5},
-        zorder=100,
-    )
 
 
 def ordered_values(values: Iterable[object], preferred: Sequence[str]) -> list[str]:
@@ -222,11 +204,10 @@ def finish_heatmap(
             0, -0.18 if not xlabel else -0.30,
             footer,
             transform=ax.transAxes,
-            fontsize=HEATMAP_FOOTER_SIZE,
+            fontsize=FOOTER_SIZE,
             color=HEATMAP_MUTED,
             va="top",
             clip_on=False,
         )
-    add_watermark(fig)
     fig.savefig(output, dpi=HEATMAP_DPI, facecolor="white", bbox_inches="tight", pad_inches=0.08)
     plt.close(fig)

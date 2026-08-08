@@ -7,9 +7,9 @@ import matplotlib.ticker as ticker
 import numpy as np
 from pathlib import Path
 try:
-    from chart_style import BRAND_COLORS, DISPLAY_NAMES, HEATMAP_MUTED, HEATMAP_TEXT, add_watermark
+    from chart_style import BRAND_COLORS, DISPLAY_NAMES, FOOTER_SIZE, HEATMAP_MUTED, HEATMAP_TEXT
 except ImportError:  # pragma: no cover - supports package-style imports
-    from .chart_style import BRAND_COLORS, DISPLAY_NAMES, HEATMAP_MUTED, HEATMAP_TEXT, add_watermark
+    from .chart_style import BRAND_COLORS, DISPLAY_NAMES, FOOTER_SIZE, HEATMAP_MUTED, HEATMAP_TEXT
 
 TARGET_QUALITY = 0.55
 TARGET_BAND_COLOR = "#e8f2eb"
@@ -162,9 +162,8 @@ def create_pareto_chart(
     if include_frontier:
         ax.legend(loc="lower right", frameon=False)
 
-    fig.text(0.01, 0.01, footer, fontsize=8, color=HEATMAP_MUTED)
+    fig.text(0.01, 0.01, footer, fontsize=FOOTER_SIZE, color=HEATMAP_MUTED)
     fig.tight_layout(rect=(0, 0.05, 1, 1))
-    add_watermark(fig)
     
     plt.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -257,14 +256,13 @@ def create_ai_3d_chart(data: list, out_path: Path) -> None:
         0.01,
         0.01,
         "Supplementary 3D view. Height is mean AI-judged nDCG@10; cost bases are provider-specific. Use the 2D Pareto charts for exact trade-offs.",
-        fontsize=8,
+        fontsize=FOOTER_SIZE,
         color=HEATMAP_MUTED,
     )
     fig.subplots_adjust(left=0.01, right=0.87, bottom=0.12, top=0.93)
     # The fixed camera projects the cube toward the right side of the canvas;
     # shift the complete axes left so the angled cost label has breathing room.
     ax.set_position([-0.09, 0.12, 0.86, 0.81])
-    add_watermark(fig, x=0.84)
     plt.savefig(out_path, dpi=180, bbox_inches="tight", pad_inches=0.08, facecolor="white")
     plt.close(fig)
     print(f"Generated AI quality-cost-latency 3D chart at {out_path}")
