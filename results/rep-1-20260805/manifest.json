@@ -20,16 +20,18 @@
     "request-summary.csv",
     "quality-summary.csv",
     "ai-quality-summary.csv",
-    "charts/"
+    "charts/",
+    "raw/"
   ],
   "redactions": [
     "absolute local paths",
     "private host and machine identifiers",
     "provider billing and account data",
     "raw request payloads",
-    "raw provider responses",
-    "request identifiers",
-    "AI judging packets and reasoning",
-    "network-probe evidence"
+    "raw provider JSON responses",
+    "provider request identifiers",
+    "AI judging packets, prompts, and reasoning traces",
+    "network-probe evidence",
+    "per-request cost and credit fields"
   ]
 }

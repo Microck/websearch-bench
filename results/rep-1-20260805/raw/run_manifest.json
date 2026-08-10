@@ -1,0 +1,23 @@
+{
+  "created_at": "2026-08-08T20:12:57.156133+00:00",
+  "query_file": "data/queries.csv",
+  "query_count": 96,
+  "repetitions": 1,
+  "include_reference_queries": true,
+  "providers": [
+    "brave",
+    "context",
+    "exa",
+    "kagi_session",
+    "octen",
+    "parallel",
+    "perplexity",
+    "tavily"
+  ],
+  "provider_modes": {
+    "parallel": "Parallel Search API mode=basic with one search_queries item",
+    "perplexity": "Perplexity ranked Search API with max_results=10 and search_context_size=low",
+    "brave": "Brave Search API Web Search endpoint with count=10",
+    "tavily": "Tavily Search API endpoint basic search with max_results=10"
+  }
+}
