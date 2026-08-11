@@ -236,12 +236,14 @@ def write_health_chart(path: Path, summary: list[dict[str, object]]) -> None:
 
     labels = [str(row["provider"]) for row in summary]
     display = {
+        "brave": "Brave",
         "context": "Context.dev",
         "exa": "Exa",
         "kagi_session": "Kagi",
         "octen": "Octen",
         "parallel": "Parallel.ai",
         "perplexity": "Perplexity",
+        "tavily": "Tavily",
     }
     categories = [
         ("ok", "OK", "#4c78a8"),

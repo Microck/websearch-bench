@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create provisional blind-style judgments from retrieval metadata.
+"""Create metadata-based judgments from retrieval metadata.
 
 This is deliberately not presented as human relevance judging. It uses the
 query, target hints, result URL, title, snippets, and URL-resolution status.
@@ -12,7 +12,6 @@ import argparse
 import csv
 import re
 import unicodedata
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -236,9 +235,23 @@ def main() -> None:
 
     queries = {row["query_id"]: row for row in load_rows(args.queries)}
     retrieved = load_rows(args.retrieved)
+    pooled_primary_rows = load_rows(args.pooled_primary)
+    pooled_ref_rows = load_rows(args.pooled_reference)
+
+    primary_dict = {(r["query_id"], r["canonical_url"]): r for r in pooled_primary_rows}
+    ref_dict = {(r["query_id"], r["canonical_url"]): r for r in pooled_ref_rows}
+
+    for row in retrieved:
+        variant = row["query_variant"]
+        key = (row["query_id"], row["canonical_url"])
+        if variant == "primary" and key not in primary_dict:
+            primary_dict[key] = {"query_id": row["query_id"], "canonical_url": row["canonical_url"], "title": row.get("title", ""), "published_at": row.get("published_at", "")}
+        elif variant == "reference" and key not in ref_dict:
+            ref_dict[key] = {"query_id": row["query_id"], "canonical_url": row["canonical_url"], "title": row.get("title", ""), "published_at": row.get("published_at", "")}
+
     pooled_sets = {
-        "primary": load_rows(args.pooled_primary),
-        "reference": load_rows(args.pooled_reference),
+        "primary": list(primary_dict.values()),
+        "reference": list(ref_dict.values()),
     }
     resolution = {row["original_url"]: row for row in load_rows(args.resolution)}
 
@@ -341,10 +354,10 @@ def main() -> None:
     method.write_text(
         "# Automated judgment method\n\n"
         "These labels are `auto_heuristic_v1`, not human gold judgments. The scorer uses only the query text, intent, target hints, subtopics, result URL, title/snippets, limited URL-resolution metadata, and page reachability. It does not use provider or rank when assigning labels.\n\n"
-        "Grade 3 means the heuristic found a strong direct match or all declared constraints. Grade 2 means a useful relevant match. Grade 1 means partial or weak topical evidence. Grade 0 means no match, spam, or an unreachable result. The resulting nDCG/MRR/Success charts are provisional diagnostics and must not be described as human relevance scores.\n",
+        "Grade 3 means the heuristic found a strong direct match or all declared constraints. Grade 2 means a useful relevant match. Grade 1 means partial or weak topical evidence. Grade 0 means no match, spam, or an unreachable result. The resulting nDCG/MRR/Success charts are automated diagnostics and must not be described as human relevance scores.\n",
         encoding="utf-8",
     )
-    print(f"wrote provisional judgments and scored results to {args.out_dir}")
+    print(f"wrote automated judgments and scored results to {args.out_dir}")
 
 
 if __name__ == "__main__":

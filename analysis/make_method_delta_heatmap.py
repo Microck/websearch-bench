@@ -53,7 +53,7 @@ def make_heatmap(input_path: Path, output_path: Path) -> None:
     cmap = plt.get_cmap("RdBu_r")
     image = ax.imshow(values, cmap=cmap, aspect="auto", vmin=-limit, vmax=limit)
     style_heatmap_axes(ax, providers, CATEGORY_ORDER)
-    ax.set_title("Method delta - AI judge minus metadata heuristic", pad=16)
+    ax.set_title("Method delta - AI judge minus metadata heuristic", pad=8)
     annotate_heatmap(
         ax,
         values,

@@ -67,7 +67,8 @@ USAGE_FIELDS = [
     "raw_response_path",
 ]
 
-DEFAULT_PROVIDERS = ("exa", "context", "octen", "kagi_session", "parallel", "perplexity")
+DEFAULT_PROVIDERS = ("exa", "context", "octen", "kagi_session", "parallel", "perplexity", "brave", "tavily")
+CONTEXT_API_KEY_NAMES = ("CONTEXT_DEV_API_KEY", "CONTEXT_DEV_API_KEY_2")
 DEFAULT_QUERY_FILE = Path(__file__).resolve().parents[1] / "data" / "queries.csv"
 TRACKING_QUERY_KEYS = {
     "fbclid",
@@ -145,7 +146,21 @@ def get_env(*names: str) -> str:
     return ""
 
 
-def provider_request(provider: str, query: str) -> tuple[str, dict[str, str], dict[str, Any]]:
+def get_context_api_keys() -> list[str]:
+    keys: list[str] = []
+    for name in CONTEXT_API_KEY_NAMES:
+        value = os.environ.get(name)
+        if value:
+            keys.append(value)
+    return keys
+
+
+def provider_request(
+    provider: str,
+    query: str,
+    *,
+    context_api_key_index: int = 0,
+) -> tuple[str, dict[str, str], dict[str, Any]]:
     if provider == "exa":
         key = get_env("EXA_API_KEY", "EXA_API_TOKEN")
         if not key:
@@ -157,9 +172,10 @@ def provider_request(provider: str, query: str) -> tuple[str, dict[str, str], di
         )
 
     if provider == "context":
-        key = get_env("CONTEXT_DEV_API_KEY")
-        if not key:
-            raise RuntimeError("missing CONTEXT_DEV_API_KEY")
+        keys = get_context_api_keys()
+        if not keys:
+            raise RuntimeError("missing CONTEXT_DEV_API_KEY or CONTEXT_DEV_API_KEY_2")
+        key = keys[context_api_key_index % len(keys)]
         return (
             "https://api.context.dev/v1/web/search",
             {"Authorization": f"Bearer {key}"},
@@ -217,6 +233,26 @@ def provider_request(provider: str, query: str) -> tuple[str, dict[str, str], di
             },
         )
 
+    if provider == "brave":
+        key = get_env("BRAVE_API_KEY", "BRAVE_SEARCH_API_KEY")
+        if not key:
+            raise RuntimeError("missing BRAVE_API_KEY or BRAVE_SEARCH_API_KEY")
+        return (
+            "https://api.search.brave.com/res/v1/web/search?" + urlencode({"q": query, "count": 10}),
+            {"X-Subscription-Token": key},
+            {"query": query, "count": 10},
+        )
+
+    if provider == "tavily":
+        key = get_env("TAVILY_API_KEY", "TVLY_API_KEY")
+        if not key:
+            raise RuntimeError("missing TAVILY_API_KEY or TVLY_API_KEY")
+        return (
+            "https://api.tavily.com/search",
+            {"Authorization": f"Bearer {key}"},
+            {"query": query, "max_results": 10},
+        )
+
     raise ValueError(f"provider {provider!r} is not an HTTP provider")
 
 
@@ -225,17 +261,19 @@ def request_json(
     headers: dict[str, str],
     payload: dict[str, Any],
     timeout_seconds: float,
+    method: str = "POST",
 ) -> tuple[int, float, bytes, HTTPMessage | None, str]:
+    data = compact_json(payload) if method.upper() == "POST" else None
     request = Request(
         url,
-        data=compact_json(payload),
+        data=data,
         headers={
             "Accept": "application/json",
             "Content-Type": "application/json",
             "User-Agent": "web-search-benchmark-kit/1.0",
             **headers,
         },
-        method="POST",
+        method=method,
     )
     started = time.perf_counter()
     try:
@@ -312,6 +350,15 @@ def provider_results(provider: str, payload: Any) -> tuple[list[dict[str, Any]],
         results = payload.get("results") if isinstance(payload, dict) else None
         request_id = str(payload.get("id", "")) if isinstance(payload, dict) else ""
         total_cost = ""
+    elif provider == "brave":
+        web = payload.get("web") if isinstance(payload, dict) else None
+        results = web.get("results") if isinstance(web, dict) else None
+        request_id = ""
+        total_cost = ""
+    elif provider == "tavily":
+        results = payload.get("results") if isinstance(payload, dict) else None
+        request_id = str(payload.get("request_id", "")) if isinstance(payload, dict) else ""
+        total_cost = ""
     else:
         raise ValueError(provider)
 
@@ -360,6 +407,12 @@ def result_fields(provider: str, item: dict[str, Any]) -> tuple[str, str, str, s
     elif provider == "perplexity":
         snippet = str(item.get("snippet") or "")
         published = str(item.get("date") or item.get("last_updated") or "")
+    elif provider == "brave":
+        snippet = str(item.get("description") or "")
+        published = str(item.get("page_age") or item.get("age") or "")
+    elif provider == "tavily":
+        snippet = str(item.get("content") or item.get("snippet") or "")
+        published = str(item.get("published_date") or "")
     else:
         snippet = str(item.get("snippet") or "")
         published = str(item.get("published") or "")
@@ -378,8 +431,11 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, query_count: int) ->
         "request_timeout_seconds": args.timeout,
         "redirect_resolution": "not_performed; canonical URL normalization only",
         "provider_modes": {
+            "context": "Context.dev Web Search API with 10 results; configured context keys are used round-robin",
             "parallel": "Parallel Search API mode=basic with one search_queries item",
             "perplexity": "Perplexity ranked Search API with max_results=10 and search_context_size=low",
+            "brave": "Brave Search API Web Search endpoint with count=10",
+            "tavily": "Tavily Search API endpoint with max_results=10",
         },
         "kagi_session_note": "kagi_session uses the subscriber CLI path, not the exhausted Kagi Search API key path",
         "usage_log": "provider_usage.csv",
@@ -430,6 +486,7 @@ def run(args: argparse.Namespace) -> int:
     rng = random.Random(args.seed)
     total_requests = len(queries) * args.repetitions * len(args.providers)
     completed_requests = 0
+    context_request_index = 0
 
     for repetition in range(1, args.repetitions + 1):
         for query_index, query_row in enumerate(queries, start=1):
@@ -479,9 +536,18 @@ def run(args: argparse.Namespace) -> int:
                             error_type = classify_error(status, detail)
                             (raw_path.with_suffix(".stderr")).write_bytes(stderr)
                     else:
-                        url, headers, payload = provider_request(provider, query_row["query"])
-                        request_path.write_bytes(compact_json({"method": "POST", "url": url, "payload": payload}) + b"\n")
-                        status, latency_ms, body, response_headers, detail = request_json(url, headers, payload, args.timeout)
+                        method = "GET" if provider in ("brave",) else "POST"
+                        context_key_index = 0
+                        if provider == "context":
+                            context_key_index = context_request_index
+                            context_request_index += 1
+                        url, headers, payload = provider_request(
+                            provider,
+                            query_row["query"],
+                            context_api_key_index=context_key_index,
+                        )
+                        request_path.write_bytes(compact_json({"method": method, "url": url, "payload": payload}) + b"\n")
+                        status, latency_ms, body, response_headers, detail = request_json(url, headers, payload, args.timeout, method=method)
                         raw_path.write_bytes(body)
                         if 200 <= status < 300:
                             try:

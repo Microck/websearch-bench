@@ -25,6 +25,10 @@ runs/
 scratch/
 *.log
 
+# Local benchmark reports generated from ignored run data
+docs/benchmark-report.html
+docs/benchmark-report-assets/
+
 # Local version-control metadata
 .jj/
 

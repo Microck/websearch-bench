@@ -10,6 +10,8 @@ Compare one raw search request returning one ranked list of ten webpages:
 - Octen: topic=general, count=10, no full_content and no images
 - Parallel.ai: Search API, one query, `mode=basic`, first ten ranked results
 - Perplexity: Search API, `max_results=10`, `search_context_size=low`
+- Brave: Web Search API, `count=10`
+- Tavily: Search API, `max_results=10`
 
 Do not use generated answers, query fanout, broad/deep search, page extraction, crawling or agent loops.
 
@@ -25,6 +27,7 @@ Run the commands below from the repository root.
 - `templates/scored_results_template.csv`: normalized ranked results joined to
   judgments
 - `docs/chart_spec.md`: exact graph names, required data and intended message
+- `runners/run_ai_harnesses.py`: retrieval runner for Codex and Claude Code harnesses
 - `runners/run_benchmark.py`: retrieval runner for the provider APIs
 - `runners/run_*`: URL-resolution, source-verification, and network-probe
   runners
@@ -110,10 +113,10 @@ Statistical reporting
 - Publish category-level results and the query-level data.
 - Do not compress quality, latency and cost into one hidden weighted score.
 
-Raw runner
+Raw runners
 
-`runners/run_benchmark.py` executes the retrieval phase and writes request payloads,
-untouched response bodies, normalized ranked results, request logs, and
+`runners/run_benchmark.py` executes provider API retrieval and writes request
+payloads, untouched response bodies, normalized ranked results, request logs, and
 provider-reported usage. It uses only the standard Python library.
 
 ```bash
@@ -122,14 +125,15 @@ CONTEXT_DEV_API_KEY=... \
 OCTEN_API_KEY=... \
 PARALLEL_API_KEY=... \
 PERPLEXITY_API_KEY=... \
+BRAVE_API_KEY=... \
+TAVILY_API_KEY=... \
 python runners/run_benchmark.py \
   --queries data/queries.csv \
   --out runs/rep-1 \
   --include-reference-queries
 ```
 
-The runner supports `exa`, `context`, `octen`, `kagi_session`, `parallel`, and
-`perplexity`. Parallel uses both `objective` and a one-item `search_queries`
+The runner supports `exa`, `context`, `octen`, `kagi_session`, `parallel`, `perplexity`, `brave`, and `tavily`. Parallel uses both `objective` and a one-item `search_queries`
 array, with `mode=basic` to keep the request comparable to a direct ranked
 search. Perplexity uses the ranked Search API, not a Sonar answer request. The Kagi
 provider invokes the installed `kagi` CLI subscriber-session path. Keep it
@@ -143,6 +147,27 @@ overage tiers. Parallel and Perplexity usage and cost remain in their raw JSON
 responses unless the provider returns fields already represented by the usage
 schema. Add explicit rows to `provider_billing_estimates.csv` before plotting
 working cost estimates for either provider.
+
+`runners/run_ai_harnesses.py` executes a second retrieval path by invoking local AI
+coding harnesses and then parsing ranked URLs from their stdout/stderr streams.
+The harness runner supports `codex` and `claude_code`.
+
+```bash
+python runners/run_ai_harnesses.py \
+  --queries data/queries.csv \
+  --out runs/ai-harness \
+  --providers codex,claude_code \
+  --include-reference-queries \
+  --max-queries 1 \
+  --codex-model gpt-3.5-codex-spark \
+  --claude-model opus-4.1
+```
+
+Set `OPENAI_API_KEY`, `OPENAI_BASE_URL` (optional), `CLIPROXYAPI_API_KEY` and
+`CLIPROXYAPI_BASE_URL` when using the proxy path. The runner writes the same
+`runs.csv`, `retrieved_results.csv`, `provider_usage.csv` and raw/request artifacts
+as `run_benchmark.py` and also stores each provider command payload in the
+`requests/` output tree.
 
 Generate the operational charts after a run:
 

@@ -187,6 +187,9 @@ def finish_heatmap(
     colorbar_label: str,
     xlabel: str = "",
     footer: str = "",
+    footer_x: float = 0.0,
+    footer_y: float | None = None,
+    footer_ha: str = "left",
 ) -> None:
     """Finish every heatmap with the same canvas, margins, and footer."""
 
@@ -201,12 +204,14 @@ def finish_heatmap(
         # Anchor to the axes left edge so bbox_inches="tight" doesn't pull
         # the crop boundary far to the left of the y-axis labels.
         ax.text(
-            0, -0.18 if not xlabel else -0.30,
+            footer_x,
+            (-0.18 if not xlabel else -0.30) if footer_y is None else footer_y,
             footer,
             transform=ax.transAxes,
             fontsize=FOOTER_SIZE,
             color=HEATMAP_MUTED,
             va="top",
+            ha=footer_ha,
             clip_on=False,
         )
     fig.savefig(output, dpi=HEATMAP_DPI, facecolor="white", bbox_inches="tight", pad_inches=0.08)
