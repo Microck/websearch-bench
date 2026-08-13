@@ -5,7 +5,7 @@ providers under a shared query set. It measures retrieval quality, result
 depth, latency, reliability, and ranking stability. It does not generate
 answers or crawl result pages during the retrieval phase.
 
-The runner currently supports Exa, Kagi subscriber-session search, Context.dev,
+The runner currently supports Exa, Kagi, Context.dev,
 Octen, Parallel.ai, Perplexity, Brave Search, and Tavily. The benchmark design and metric definitions
 are documented in [the benchmark design](docs/benchmark-design.md).
 
@@ -53,9 +53,10 @@ export PARALLEL_API_KEY=...
 export PERPLEXITY_API_KEY=...
 export BRAVE_API_KEY=...
 export TAVILY_API_KEY=...
+export KAGI_API_KEY=...
 ```
 
-Kagi uses the installed subscriber-session `kagi` CLI path. It is not read
+`.env.example` lists the same variable names with empty values. No key is read
 from a value committed to this repository.
 
 Run retrieval into the ignored local `runs/` directory:

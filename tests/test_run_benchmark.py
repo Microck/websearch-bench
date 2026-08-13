@@ -29,12 +29,14 @@ class ProviderContractTests(unittest.TestCase):
         self.previous_perplexity = os.environ.get("PERPLEXITY_API_KEY")
         self.previous_brave = os.environ.get("BRAVE_API_KEY")
         self.previous_tavily = os.environ.get("TAVILY_API_KEY")
+        self.previous_kagi = os.environ.get("KAGI_API_KEY")
         os.environ["CONTEXT_DEV_API_KEY"] = "test-context-key"
         os.environ["CONTEXT_DEV_API_KEY_2"] = "test-context-key-2"
         os.environ["PARALLEL_API_KEY"] = "test-parallel-key"
         os.environ["PERPLEXITY_API_KEY"] = "test-perplexity-key"
         os.environ["BRAVE_API_KEY"] = "test-brave-key"
         os.environ["TAVILY_API_KEY"] = "test-tavily-key"
+        os.environ["KAGI_API_KEY"] = "test-kagi-key"
 
     def tearDown(self) -> None:
         if self.previous_context is None:
@@ -61,6 +63,10 @@ class ProviderContractTests(unittest.TestCase):
             os.environ.pop("TAVILY_API_KEY", None)
         else:
             os.environ["TAVILY_API_KEY"] = self.previous_tavily
+        if self.previous_kagi is None:
+            os.environ.pop("KAGI_API_KEY", None)
+        else:
+            os.environ["KAGI_API_KEY"] = self.previous_kagi
 
     def test_parallel_request_shape(self) -> None:
         url, headers, payload = provider_request("parallel", "find the official Python docs")
@@ -94,6 +100,15 @@ class ProviderContractTests(unittest.TestCase):
         self.assertEqual(url, "https://api.tavily.com/search")
         self.assertEqual(headers, {"Authorization": "Bearer test-tavily-key"})
         self.assertEqual(payload, {"query": "find the official Python docs", "max_results": 10})
+
+    def test_kagi_request_shape(self) -> None:
+        url, headers, payload = provider_request("kagi", "find the official Python docs")
+        self.assertEqual(url, "https://kagi.com/api/v1/search")
+        self.assertEqual(headers, {"Authorization": "Bearer test-kagi-key"})
+        self.assertEqual(
+            payload,
+            {"query": "find the official Python docs", "workflow": "search", "limit": 10},
+        )
 
     def test_context_request_rotates_configured_keys(self) -> None:
         url, first_headers, first_payload = provider_request(
@@ -165,6 +180,35 @@ class ProviderContractTests(unittest.TestCase):
                 },
             ),
             ("https://example.org/page", "https://example.org/page", "Example page", "A useful result\t2026-08-04"),
+        )
+
+    def test_kagi_result_normalization_reads_only_web_results(self) -> None:
+        results, request_id, cost = provider_results(
+            "kagi",
+            {
+                "meta": {"trace": "kagi-trace-1"},
+                "data": {
+                    "search": [{"url": "https://kagi.example.org"}],
+                    # Non-web collections must never enter the ranked list.
+                    "image": [{"url": "https://kagi.example.org/image.png"}],
+                    "related_search": [{"url": "", "title": "another query"}],
+                },
+            },
+        )
+        self.assertEqual(len(results), 1)
+        self.assertEqual(request_id, "kagi-trace-1")
+        self.assertEqual(cost, "")
+        self.assertEqual(
+            result_fields(
+                "kagi",
+                {
+                    "url": "https://kagi.example.org/page",
+                    "title": "Kagi result",
+                    "snippet": "Kagi snippet",
+                    "time": "2026-08-02",
+                },
+            ),
+            ("https://kagi.example.org/page", "https://kagi.example.org/page", "Kagi result", "Kagi snippet\t2026-08-02"),
         )
 
     def test_brave_result_normalization(self) -> None:

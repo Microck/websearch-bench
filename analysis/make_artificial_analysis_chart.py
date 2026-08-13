@@ -273,7 +273,7 @@ def main():
         {"provider": "brave",       "display_name": DISPLAY_NAMES["brave"],       "color": BRAND_COLORS["brave"],       "ndcg10": 0.659, "ci_low": 0.617, "ci_high": 0.701, "cost_1k":  5.00, "p95_ms":  820},
         {"provider": "context",     "display_name": DISPLAY_NAMES["context"],     "color": BRAND_COLORS["context"],     "ndcg10": 0.569, "ci_low": 0.533, "ci_high": 0.604, "cost_1k":  1.50, "p95_ms": 3854},
         {"provider": "exa",         "display_name": DISPLAY_NAMES["exa"],         "color": BRAND_COLORS["exa"],         "ndcg10": 0.523, "ci_low": 0.468, "ci_high": 0.577, "cost_1k":  7.00, "p95_ms": 1792},
-        {"provider": "kagi_session","display_name": DISPLAY_NAMES["kagi_session"],"color": BRAND_COLORS["kagi_session"],"ndcg10": 0.634, "ci_low": 0.599, "ci_high": 0.670, "cost_1k": 12.00, "p95_ms": 1640},
+        {"provider": "kagi","display_name": DISPLAY_NAMES["kagi"],"color": BRAND_COLORS["kagi"],"ndcg10": 0.634, "ci_low": 0.599, "ci_high": 0.670, "cost_1k": 12.00, "p95_ms": 1640},
         {"provider": "octen",       "display_name": DISPLAY_NAMES["octen"],       "color": BRAND_COLORS["octen"],       "ndcg10": 0.496, "ci_low": 0.453, "ci_high": 0.540, "cost_1k":  1.00, "p95_ms":  941},
         {"provider": "parallel",    "display_name": DISPLAY_NAMES["parallel"],    "color": BRAND_COLORS["parallel"],    "ndcg10": 0.675, "ci_low": 0.636, "ci_high": 0.713, "cost_1k":  5.05, "p95_ms": 1755},
         {"provider": "perplexity",  "display_name": DISPLAY_NAMES["perplexity"],  "color": BRAND_COLORS["perplexity"],  "ndcg10": 0.577, "ci_low": 0.537, "ci_high": 0.617, "cost_1k":  5.05, "p95_ms": 1224},

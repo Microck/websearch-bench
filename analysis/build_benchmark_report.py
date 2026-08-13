@@ -32,7 +32,7 @@ BRAND_COLORS = {
     "brave": "#4f30ab",
     "context": "#5e6ad2",
     "exa": "#1840ed",
-    "kagi_session": "#c78a00",
+    "kagi": "#c78a00",
     "octen": "#238b3d",
     "parallel": "#d84e13",
     "perplexity": "#168da0",
@@ -671,7 +671,7 @@ def build_html(page_data: dict[str, Any]) -> str:
                 <article class="method-note"><h3>Hit@1</h3><p>Did the first ranked result match one of Octen's gold URL prefixes? This is the strictest proxy for "the search got me there immediately."</p></article>
                 <article class="method-note"><h3>Hit@10</h3><p>Did any of the first ten results match a gold URL prefix? This measures retrieval coverage, not whether the provider ranked the page well.</p></article>
                 <article class="method-note"><h3>Gold set</h3><p>{run['graded_queries']} of {run['queries_attempted']} anchors were gradable. These {run['ungraded_queries']} candidates had no qualified gold URL: {html.escape(ungraded_ids)}.</p></article>
-                <article class="method-note"><h3>Not an agent benchmark</h3><p>Every call used the direct provider API or Kagi subscriber search. No agent generated an answer, opened result pages, or judged relevance.</p></article>
+                <article class="method-note"><h3>Not an agent benchmark</h3><p>Every call used the direct provider API. No agent generated an answer, opened result pages, or judged relevance.</p></article>
               </div>
             </section>
 

@@ -13,8 +13,6 @@ import csv
 import json
 import os
 import random
-import re
-import subprocess
 import sys
 import time
 from datetime import datetime, timezone
@@ -67,7 +65,7 @@ USAGE_FIELDS = [
     "raw_response_path",
 ]
 
-DEFAULT_PROVIDERS = ("exa", "context", "octen", "kagi_session", "parallel", "perplexity", "brave", "tavily")
+DEFAULT_PROVIDERS = ("exa", "context", "octen", "kagi", "parallel", "perplexity", "brave", "tavily")
 CONTEXT_API_KEY_NAMES = ("CONTEXT_DEV_API_KEY", "CONTEXT_DEV_API_KEY_2")
 DEFAULT_QUERY_FILE = Path(__file__).resolve().parents[1] / "data" / "queries.csv"
 TRACKING_QUERY_KEYS = {
@@ -203,6 +201,18 @@ def provider_request(
             },
         )
 
+    if provider == "kagi":
+        key = get_env("KAGI_API_KEY", "KAGI_API_TOKEN")
+        if not key:
+            raise RuntimeError("missing KAGI_API_KEY or KAGI_API_TOKEN")
+        return (
+            "https://kagi.com/api/v1/search",
+            {"Authorization": f"Bearer {key}"},
+            # limit caps what the API returns; it does not change how much
+            # Kagi searches, so the top ten come from a normal single pass.
+            {"query": query, "workflow": "search", "limit": 10},
+        )
+
     if provider == "parallel":
         key = get_env("PARALLEL_API_KEY")
         if not key:
@@ -296,30 +306,6 @@ def request_json(
     return status, elapsed_ms, body, response_headers, detail
 
 
-def run_kagi_session(query: str, timeout_seconds: float) -> tuple[int, float, bytes, bytes, str]:
-    command = ["kagi", "search", "--limit", "10", "--format", "json", query]
-    started = time.perf_counter()
-    try:
-        completed = subprocess.run(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=timeout_seconds,
-            check=False,
-        )
-        status = 200 if completed.returncode == 0 else 1
-        stderr = completed.stderr
-        detail = stderr.decode("utf-8", errors="replace")[:1000]
-        match = re.search(r"HTTP (\d{3})", detail)
-        if match:
-            status = int(match.group(1))
-        return status, (time.perf_counter() - started) * 1000, completed.stdout, stderr, detail
-    except subprocess.TimeoutExpired as error:
-        stdout = error.stdout or b""
-        stderr = error.stderr or b""
-        return 408, (time.perf_counter() - started) * 1000, stdout, stderr, "timeout"
-
-
 def provider_results(provider: str, payload: Any) -> tuple[list[dict[str, Any]], str, str]:
     if provider == "exa":
         results = payload.get("results") if isinstance(payload, dict) else None
@@ -338,9 +324,12 @@ def provider_results(provider: str, payload: Any) -> tuple[list[dict[str, Any]],
         results = data.get("results") if isinstance(data, dict) else None
         request_id = str(payload.get("request_id", "")) if isinstance(payload, dict) else ""
         total_cost = ""
-    elif provider == "kagi_session":
-        results = payload.get("data") if isinstance(payload, dict) else None
-        request_id = ""
+    elif provider == "kagi":
+        # v1 splits results by type; only data.search holds ranked web pages.
+        data = payload.get("data") if isinstance(payload, dict) else None
+        results = data.get("search") if isinstance(data, dict) else None
+        meta = payload.get("meta") if isinstance(payload, dict) else None
+        request_id = str(meta.get("trace", "")) if isinstance(meta, dict) else ""
         total_cost = ""
     elif provider == "parallel":
         results = payload.get("results") if isinstance(payload, dict) else None
@@ -397,6 +386,9 @@ def result_fields(provider: str, item: dict[str, Any]) -> tuple[str, str, str, s
     elif provider == "octen":
         snippet = str(item.get("highlight") or "")
         published = str(item.get("time_published") or "")
+    elif provider == "kagi":
+        snippet = str(item.get("snippet") or "")
+        published = str(item.get("time") or "")
     elif provider == "parallel":
         excerpts = item.get("excerpts")
         if isinstance(excerpts, list):
@@ -436,8 +428,8 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, query_count: int) ->
             "perplexity": "Perplexity ranked Search API with max_results=10 and search_context_size=low",
             "brave": "Brave Search API Web Search endpoint with count=10",
             "tavily": "Tavily Search API endpoint with max_results=10",
+            "kagi": "Kagi Search API v1 POST /search with workflow=search and limit=10; only data.search rows are read",
         },
-        "kagi_session_note": "kagi_session uses the subscriber CLI path, not the exhausted Kagi Search API key path",
         "usage_log": "provider_usage.csv",
     }
     (out_dir / "run_manifest.json").write_text(
@@ -514,50 +506,28 @@ def run(args: argparse.Namespace) -> int:
                 error_type = ""
 
                 try:
-                    if provider == "kagi_session":
-                        request_path.write_text(
-                            json.dumps(
-                                {"command": ["kagi", "search", "--limit", "10", "--format", "json", "<query>"], "query": query_row["query"]},
-                                indent=2,
-                            )
-                            + "\n",
-                            encoding="utf-8",
-                        )
-                        status, latency_ms, body, stderr, detail = run_kagi_session(query_row["query"], args.timeout)
-                        raw_path.write_bytes(body)
-                        if status == 200:
-                            try:
-                                payload = parse_json(body)
-                                reported_usage = provider_usage(provider, payload)
-                                results, request_id, cost_usd = provider_results(provider, payload)
-                            except (ValueError, json.JSONDecodeError) as error:
-                                error_type = str(error)
-                        else:
-                            error_type = classify_error(status, detail)
-                            (raw_path.with_suffix(".stderr")).write_bytes(stderr)
+                    method = "GET" if provider in ("brave",) else "POST"
+                    context_key_index = 0
+                    if provider == "context":
+                        context_key_index = context_request_index
+                        context_request_index += 1
+                    url, headers, payload = provider_request(
+                        provider,
+                        query_row["query"],
+                        context_api_key_index=context_key_index,
+                    )
+                    request_path.write_bytes(compact_json({"method": method, "url": url, "payload": payload}) + b"\n")
+                    status, latency_ms, body, response_headers, detail = request_json(url, headers, payload, args.timeout, method=method)
+                    raw_path.write_bytes(body)
+                    if 200 <= status < 300:
+                        try:
+                            payload = parse_json(body)
+                            reported_usage = provider_usage(provider, payload)
+                            results, request_id, cost_usd = provider_results(provider, payload)
+                        except (ValueError, json.JSONDecodeError) as error:
+                            error_type = str(error)
                     else:
-                        method = "GET" if provider in ("brave",) else "POST"
-                        context_key_index = 0
-                        if provider == "context":
-                            context_key_index = context_request_index
-                            context_request_index += 1
-                        url, headers, payload = provider_request(
-                            provider,
-                            query_row["query"],
-                            context_api_key_index=context_key_index,
-                        )
-                        request_path.write_bytes(compact_json({"method": method, "url": url, "payload": payload}) + b"\n")
-                        status, latency_ms, body, response_headers, detail = request_json(url, headers, payload, args.timeout, method=method)
-                        raw_path.write_bytes(body)
-                        if 200 <= status < 300:
-                            try:
-                                payload = parse_json(body)
-                                reported_usage = provider_usage(provider, payload)
-                                results, request_id, cost_usd = provider_results(provider, payload)
-                            except (ValueError, json.JSONDecodeError) as error:
-                                error_type = str(error)
-                        else:
-                            error_type = classify_error(status, detail)
+                        error_type = classify_error(status, detail)
                 except Exception as error:  # keep the suite moving and record the failure
                     detail = str(error)
                     error_type = classify_error(status, detail) or "runner_error"

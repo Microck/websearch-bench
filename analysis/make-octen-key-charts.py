@@ -111,7 +111,7 @@ def make_quality_latency(summary: pd.DataFrame, runs: pd.DataFrame, output: Path
         "brave": (1020, 97),
         "context": (6650, 94),
         "exa": (2050, 103),
-        "kagi_session": (2070, 88),
+        "kagi": (2070, 88),
         "octen": (1130, 67),
         "parallel": (1250, 87),
         "perplexity": (1550, 95),

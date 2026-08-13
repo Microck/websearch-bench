@@ -10,12 +10,12 @@ import numpy as np
 from matplotlib.colors import Colormap, Normalize
 
 
-PROVIDER_ORDER = ["brave", "context", "exa", "kagi_session", "octen", "parallel", "perplexity", "tavily"]
+PROVIDER_ORDER = ["brave", "context", "exa", "kagi", "octen", "parallel", "perplexity", "tavily"]
 DISPLAY_NAMES = {
     "brave": "Brave",
     "context": "Context.dev",
     "exa": "Exa",
-    "kagi_session": "Kagi",
+    "kagi": "Kagi",
     "octen": "Octen",
     "parallel": "Parallel.ai",
     "perplexity": "Perplexity",
@@ -29,7 +29,7 @@ BRAND_COLORS = {
     "brave": "#4F30AB",  # Deep purple
     "context": "#5E6AD2",  # Context site indigo approximation
     "exa": "#1840ED",  # Exa official brand blue
-    "kagi_session": "#FFB319",  # Kagi official yellow
+    "kagi": "#FFB319",  # Kagi official yellow
     "octen": "#60FF70",  # Bright green
     "parallel": "#FB631B",  # Parallel site accent
     "perplexity": "#1FB8CD",  # Perplexity True Turquoise

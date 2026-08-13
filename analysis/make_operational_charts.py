@@ -23,12 +23,12 @@ except ImportError:  # pragma: no cover - supports package-style imports
     from .chart_style import BRAND_COLORS, FOOTER_SIZE
 
 
-PROVIDER_ORDER = ["brave", "context", "exa", "kagi_session", "octen", "parallel", "perplexity", "tavily"]
+PROVIDER_ORDER = ["brave", "context", "exa", "kagi", "octen", "parallel", "perplexity", "tavily"]
 DISPLAY_NAMES = {
     "brave": "Brave",
     "context": "Context.dev",
     "exa": "Exa",
-    "kagi_session": "Kagi",
+    "kagi": "Kagi",
     "octen": "Octen",
     "parallel": "Parallel.ai",
     "perplexity": "Perplexity",

@@ -64,7 +64,7 @@ DISPLAY_NAMES = {
     "brave": "Brave",
     "context": "Context.dev",
     "exa": "Exa",
-    "kagi_session": "Kagi",
+    "kagi": "Kagi",
     "octen": "Octen",
     "parallel": "Parallel.ai",
     "perplexity": "Perplexity",

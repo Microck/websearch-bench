@@ -239,7 +239,7 @@ def write_health_chart(path: Path, summary: list[dict[str, object]]) -> None:
         "brave": "Brave",
         "context": "Context.dev",
         "exa": "Exa",
-        "kagi_session": "Kagi",
+        "kagi": "Kagi",
         "octen": "Octen",
         "parallel": "Parallel.ai",
         "perplexity": "Perplexity",

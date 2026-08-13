@@ -5,7 +5,7 @@ Scope
 Compare one raw search request returning one ranked list of ten webpages:
 
 - Exa: Search API, type=auto, numResults=10, no contents or deep mode
-- Kagi: subscriber-session search through the installed `kagi-cli`, first ten web results
+- Kagi: Search API v1 `POST /search`, `workflow=search`, `limit=10`, first ten web results
 - Context.dev: numResults=10, queryFanout=false, markdownOptions.enabled=false
 - Octen: topic=general, count=10, no full_content and no images
 - Parallel.ai: Search API, one query, `mode=basic`, first ten ranked results
@@ -133,12 +133,12 @@ python runners/run_benchmark.py \
   --include-reference-queries
 ```
 
-The runner supports `exa`, `context`, `octen`, `kagi_session`, `parallel`, `perplexity`, `brave`, and `tavily`. Parallel uses both `objective` and a one-item `search_queries`
+The runner supports `exa`, `context`, `octen`, `kagi`, `parallel`, `perplexity`, `brave`, and `tavily`. Parallel uses both `objective` and a one-item `search_queries`
 array, with `mode=basic` to keep the request comparable to a direct ranked
 search. Perplexity uses the ranked Search API, not a Sonar answer request. The Kagi
-provider invokes the installed `kagi` CLI subscriber-session path. Keep it
-separate from API-mode Kagi results because the two paths are not guaranteed to
-share the same ranking behavior. The runner normalizes URL syntax and removes
+provider calls the Kagi Search API v1 with an API key and reads only the
+`data.search` collection, so image, news, and related-search entries never
+enter the ranked list. The runner normalizes URL syntax and removes
 obvious tracking parameters; it does not resolve redirects or assign
 relevance grades. Use the pooled judgment templates after retrieval. The
 `provider_usage.csv` output preserves Context credits, Octen search-query and
