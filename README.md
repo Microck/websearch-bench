@@ -6,7 +6,7 @@ depth, latency, reliability, and ranking stability. It does not generate
 answers or crawl result pages during the retrieval phase.
 
 The runner currently supports Exa, Kagi subscriber-session search, Context.dev,
-Octen, Parallel.ai, Perplexity, Brave Search, and Tavily. The benchmark design and metric definitions
+Octen, Parallel.ai, Perplexity, Brave Search, Tavily, and Keenable (opt-in with `--providers keenable`). The benchmark design and metric definitions
 are documented in [the benchmark design](docs/benchmark-design.md).
 
 ## Repository layout
@@ -53,6 +53,16 @@ export PARALLEL_API_KEY=...
 export PERPLEXITY_API_KEY=...
 export BRAVE_API_KEY=...
 export TAVILY_API_KEY=...
+export KEENABLE_API_KEY=...   # optional; Keenable also works without a key
+```
+
+Keenable is not in the default provider set. To include it in a run:
+
+```bash
+python runners/run_benchmark.py \
+  --queries data/queries.csv \
+  --out runs/local-run \
+  --providers keenable
 ```
 
 Kagi uses the installed subscriber-session `kagi` CLI path. It is not read

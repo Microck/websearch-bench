@@ -3,6 +3,7 @@ import unittest
 
 from runners.run_benchmark import (
     DEFAULT_PROVIDERS,
+    SUPPORTED_PROVIDERS,
     parse_args,
     provider_request,
     provider_results,
@@ -207,6 +208,67 @@ class ProviderContractTests(unittest.TestCase):
                 },
             ),
             ("https://tavily.example.org/page", "https://tavily.example.org/page", "Tavily result", "Tavily content\t2026-08-02"),
+        )
+
+    def test_keenable_is_opt_in_not_default(self) -> None:
+        args = parse_args(["--out", "/tmp/provider-contract-test"])
+        self.assertIn("keenable", SUPPORTED_PROVIDERS)
+        self.assertNotIn("keenable", DEFAULT_PROVIDERS)
+        self.assertNotIn("keenable", args.providers)
+        selected = parse_args(["--out", "/tmp/provider-contract-test", "--providers", "keenable"])
+        self.assertEqual(selected.providers, ["keenable"])
+
+    def test_keenable_request_shape_keyed(self) -> None:
+        previous = os.environ.get("KEENABLE_API_KEY")
+        os.environ["KEENABLE_API_KEY"] = "test-keenable-key"
+        try:
+            url, headers, payload = provider_request("keenable", "find the official Python docs")
+        finally:
+            if previous is None:
+                os.environ.pop("KEENABLE_API_KEY", None)
+            else:
+                os.environ["KEENABLE_API_KEY"] = previous
+        self.assertEqual(url, "https://api.keenable.ai/v1/search")
+        self.assertEqual(headers, {"X-API-Key": "test-keenable-key", "X-Keenable-Title": "websearch-bench"})
+        self.assertEqual(
+            payload,
+            {"query": "find the official Python docs", "max_results": 10, "disable_cards": True},
+        )
+
+    def test_keenable_request_shape_public(self) -> None:
+        previous = os.environ.get("KEENABLE_API_KEY")
+        os.environ.pop("KEENABLE_API_KEY", None)
+        try:
+            url, headers, payload = provider_request("keenable", "find the official Python docs")
+        finally:
+            if previous is not None:
+                os.environ["KEENABLE_API_KEY"] = previous
+        self.assertEqual(url, "https://api.keenable.ai/v1/search/public")
+        self.assertEqual(headers, {"X-Keenable-Title": "websearch-bench"})
+        self.assertEqual(
+            payload,
+            {"query": "find the official Python docs", "max_results": 10, "disable_cards": True},
+        )
+
+    def test_keenable_result_normalization(self) -> None:
+        results, request_id, cost = provider_results(
+            "keenable",
+            {"query": "q", "mode": "pro", "results": [{"url": "https://keenable.example.org"}]},
+        )
+        self.assertEqual(len(results), 1)
+        self.assertEqual(request_id, "")
+        self.assertEqual(cost, "")
+        self.assertEqual(
+            result_fields(
+                "keenable",
+                {
+                    "url": "https://keenable.example.org/page",
+                    "title": "Keenable result",
+                    "snippet": "Keenable snippet",
+                    "published_at": "2026-08-03T00:00:00Z",
+                },
+            ),
+            ("https://keenable.example.org/page", "https://keenable.example.org/page", "Keenable result", "Keenable snippet\t2026-08-03T00:00:00Z"),
         )
 
 

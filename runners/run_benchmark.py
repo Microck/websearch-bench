@@ -68,6 +68,8 @@ USAGE_FIELDS = [
 ]
 
 DEFAULT_PROVIDERS = ("exa", "context", "octen", "kagi_session", "parallel", "perplexity", "brave", "tavily")
+# Opt-in providers accepted by --providers, not included in a default run.
+SUPPORTED_PROVIDERS = DEFAULT_PROVIDERS + ("keenable",)
 CONTEXT_API_KEY_NAMES = ("CONTEXT_DEV_API_KEY", "CONTEXT_DEV_API_KEY_2")
 DEFAULT_QUERY_FILE = Path(__file__).resolve().parents[1] / "data" / "queries.csv"
 TRACKING_QUERY_KEYS = {
@@ -253,6 +255,23 @@ def provider_request(
             {"query": query, "max_results": 10},
         )
 
+    if provider == "keenable":
+        # Keyed /v1/search when KEENABLE_API_KEY is set; otherwise the public
+        # keyless endpoint. Docs: https://docs.keenable.ai/api-reference/search.md
+        key = get_env("KEENABLE_API_KEY")
+        payload = {"query": query, "max_results": 10, "disable_cards": True}
+        if key:
+            return (
+                "https://api.keenable.ai/v1/search",
+                {"X-API-Key": key, "X-Keenable-Title": "websearch-bench"},
+                payload,
+            )
+        return (
+            "https://api.keenable.ai/v1/search/public",
+            {"X-Keenable-Title": "websearch-bench"},
+            payload,
+        )
+
     raise ValueError(f"provider {provider!r} is not an HTTP provider")
 
 
@@ -359,6 +378,10 @@ def provider_results(provider: str, payload: Any) -> tuple[list[dict[str, Any]],
         results = payload.get("results") if isinstance(payload, dict) else None
         request_id = str(payload.get("request_id", "")) if isinstance(payload, dict) else ""
         total_cost = ""
+    elif provider == "keenable":
+        results = payload.get("results") if isinstance(payload, dict) else None
+        request_id = ""
+        total_cost = ""
     else:
         raise ValueError(provider)
 
@@ -382,6 +405,13 @@ def provider_usage(provider: str, payload: Any) -> dict[str, Any]:
         cost = payload.get("costDollars")
         if isinstance(cost, dict):
             return {"cost_usd_reported": cost.get("total", "")}
+    if provider == "keenable":
+        usage = payload.get("usage")
+        if isinstance(usage, dict):
+            credits = usage.get("credits")
+            return {
+                "credits_consumed": credits if credits is not None else "",
+            }
     return {}
 
 
@@ -413,6 +443,9 @@ def result_fields(provider: str, item: dict[str, Any]) -> tuple[str, str, str, s
     elif provider == "tavily":
         snippet = str(item.get("content") or item.get("snippet") or "")
         published = str(item.get("published_date") or "")
+    elif provider == "keenable":
+        snippet = str(item.get("snippet") or item.get("description") or "")
+        published = str(item.get("published_at") or "")
     else:
         snippet = str(item.get("snippet") or "")
         published = str(item.get("published") or "")
@@ -436,6 +469,7 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, query_count: int) ->
             "perplexity": "Perplexity ranked Search API with max_results=10 and search_context_size=low",
             "brave": "Brave Search API Web Search endpoint with count=10",
             "tavily": "Tavily Search API endpoint with max_results=10",
+            "keenable": "Keenable Search API with max_results=10; KEENABLE_API_KEY uses /v1/search, otherwise the public endpoint",
         },
         "kagi_session_note": "kagi_session uses the subscriber CLI path, not the exhausted Kagi Search API key path",
         "usage_log": "provider_usage.csv",
@@ -658,7 +692,7 @@ def parse_args(argv: Iterable[str]) -> argparse.Namespace:
     parser.add_argument("--progress-every", type=int, default=5)
     args = parser.parse_args(list(argv))
     args.providers = [item.strip() for item in args.providers.split(",") if item.strip()]
-    valid = set(DEFAULT_PROVIDERS)
+    valid = set(SUPPORTED_PROVIDERS)
     unknown = sorted(set(args.providers) - valid)
     if unknown:
         parser.error(f"unknown providers: {', '.join(unknown)}")

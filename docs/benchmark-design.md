@@ -127,13 +127,14 @@ PARALLEL_API_KEY=... \
 PERPLEXITY_API_KEY=... \
 BRAVE_API_KEY=... \
 TAVILY_API_KEY=... \
+KEENABLE_API_KEY=... \
 python runners/run_benchmark.py \
   --queries data/queries.csv \
   --out runs/rep-1 \
   --include-reference-queries
 ```
 
-The runner supports `exa`, `context`, `octen`, `kagi_session`, `parallel`, `perplexity`, `brave`, and `tavily`. Parallel uses both `objective` and a one-item `search_queries`
+The runner supports `exa`, `context`, `octen`, `kagi_session`, `parallel`, `perplexity`, `brave`, `tavily`, and opt-in `keenable` (`--providers keenable`; not in the default set). Keenable uses `POST /v1/search` with `KEENABLE_API_KEY` when set, and otherwise the public keyless endpoint. Parallel uses both `objective` and a one-item `search_queries`
 array, with `mode=basic` to keep the request comparable to a direct ranked
 search. Perplexity uses the ranked Search API, not a Sonar answer request. The Kagi
 provider invokes the installed `kagi` CLI subscriber-session path. Keep it
