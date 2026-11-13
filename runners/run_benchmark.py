@@ -259,7 +259,7 @@ def provider_request(
         # Keyed /v1/search when KEENABLE_API_KEY is set; otherwise the public
         # keyless endpoint. Docs: https://docs.keenable.ai/api-reference/search.md
         key = get_env("KEENABLE_API_KEY")
-        payload = {"query": query, "max_results": 10}
+        payload = {"query": query, "max_results": 10, "disable_cards": True}
         if key:
             return (
                 "https://api.keenable.ai/v1/search",

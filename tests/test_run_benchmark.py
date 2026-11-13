@@ -230,7 +230,10 @@ class ProviderContractTests(unittest.TestCase):
                 os.environ["KEENABLE_API_KEY"] = previous
         self.assertEqual(url, "https://api.keenable.ai/v1/search")
         self.assertEqual(headers, {"X-API-Key": "test-keenable-key", "X-Keenable-Title": "websearch-bench"})
-        self.assertEqual(payload, {"query": "find the official Python docs", "max_results": 10})
+        self.assertEqual(
+            payload,
+            {"query": "find the official Python docs", "max_results": 10, "disable_cards": True},
+        )
 
     def test_keenable_request_shape_public(self) -> None:
         previous = os.environ.get("KEENABLE_API_KEY")
@@ -242,7 +245,10 @@ class ProviderContractTests(unittest.TestCase):
                 os.environ["KEENABLE_API_KEY"] = previous
         self.assertEqual(url, "https://api.keenable.ai/v1/search/public")
         self.assertEqual(headers, {"X-Keenable-Title": "websearch-bench"})
-        self.assertEqual(payload, {"query": "find the official Python docs", "max_results": 10})
+        self.assertEqual(
+            payload,
+            {"query": "find the official Python docs", "max_results": 10, "disable_cards": True},
+        )
 
     def test_keenable_result_normalization(self) -> None:
         results, request_id, cost = provider_results(
